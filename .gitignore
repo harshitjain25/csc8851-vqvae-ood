@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+vqenv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & large artifacts
+data/
+outputs/
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
+
+# Logs
+runs/
+wandb/

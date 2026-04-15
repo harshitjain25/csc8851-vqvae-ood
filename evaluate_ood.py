@@ -1,42 +1,82 @@
 import os
 import numpy as np
+import torch
 from scripts.metrics import compute_all
+from scripts.utils import combine_scores, load_model_checkpoint
+from models.energy_model import EnergyMLP
+from models.mlp import OODMLP
+
+DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
+ENERGY_CKPT = "checkpoints/energy_mlp.pth"
+MLP_CKPT    = "checkpoints/ood_mlp.pth"
+
 
 def safe_load(path):
     if not os.path.exists(path):
         print(f"[MISSING] {path}")
         return None
-    return np.load(path)
+    arr = np.load(path).astype(np.float32)
+    print(f"[OK] {path} shape={arr.shape}")
+    return arr
 
-def eval_pair(id_lat, ood_lat, name):
-    y = np.concatenate([np.zeros(len(id_lat)), np.ones(len(ood_lat))])
 
-    # dummy score just to test pipeline (replace later with energy/mlp score)
-    scores = np.concatenate([
-        np.linalg.norm(id_lat, axis=1),
-        np.linalg.norm(ood_lat, axis=1)
-    ])
+def score_energy(model, latents):
+    """Run EnergyMLP and return raw energy scores. Higher = more OOD."""
+    z = torch.from_numpy(latents).to(DEVICE)
+    with torch.no_grad():
+        return model(z).squeeze(1).cpu().numpy()  # (N,)
 
-    m = compute_all(y, scores)
+
+def score_mlp(model, latents):
+    """Run OODMLP and return sigmoid OOD probabilities. Higher = more OOD."""
+    z = torch.from_numpy(latents).to(DEVICE)
+    with torch.no_grad():
+        return torch.sigmoid(model(z).squeeze(1)).cpu().numpy()  # (N,) in [0,1]
+
+
+def eval_pair(energy_model, mlp_model, id_lat, ood_lat, name, alpha=0.5):
+    """Evaluate all three detection methods for one ID vs OOD pair."""
+    y_true = np.concatenate([np.zeros(len(id_lat)), np.ones(len(ood_lat))])
+
+    e_scores = np.concatenate([score_energy(energy_model, id_lat),
+                                score_energy(energy_model, ood_lat)])
+    m_scores = np.concatenate([score_mlp(mlp_model, id_lat),
+                                score_mlp(mlp_model, ood_lat)])
+    c_scores = combine_scores(e_scores, m_scores, alpha=alpha)
+
     print(f"\n=== {name} ===")
-    for k, v in m.items():
-        print(f"{k}: {v:.4f}")
+    print(f"{'Method':<14} {'AUROC':>8} {'AUPR':>8} {'FPR@95TPR':>12}")
+    print("-" * 46)
+    for method_name, scores in [("Energy", e_scores), ("MLP", m_scores), ("Energy+MLP", c_scores)]:
+        m = compute_all(y_true, scores)
+        print(f"{method_name:<14} {m['AUROC']:>8.4f} {m['AUPR']:>8.4f} {m['FPR@95TPR']:>12.4f}")
+
 
 def main():
     id_lat   = safe_load("latent_codes/cifar10.npy")
     near_lat = safe_load("latent_codes/cifar100.npy")
     far_lat  = safe_load("latent_codes/svhn.npy")
 
-    if id_lat is None or near_lat is None or far_lat is None:
+    if any(x is None for x in [id_lat, near_lat, far_lat]):
         print("\nLatent files not available yet. Waiting for Parsh.")
-        print("Expected files:")
-        print("  latent_codes/cifar10.npy")
-        print("  latent_codes/cifar100.npy")
-        print("  latent_codes/svhn.npy")
         return
 
-    eval_pair(id_lat, near_lat, "CIFAR-10 (ID) vs CIFAR-100 (Near-OOD)")
-    eval_pair(id_lat, far_lat,  "CIFAR-10 (ID) vs SVHN (Far-OOD)")
+    if not os.path.exists(ENERGY_CKPT):
+        print(f"[MISSING] {ENERGY_CKPT} — run train_energy.py first.")
+        return
+    if not os.path.exists(MLP_CKPT):
+        print(f"[MISSING] {MLP_CKPT} — run train_mlp.py first.")
+        return
+
+    energy_model = load_model_checkpoint(EnergyMLP, ENERGY_CKPT, DEVICE)
+    mlp_model    = load_model_checkpoint(OODMLP,    MLP_CKPT,    DEVICE)
+    print(f"\nDevice: {DEVICE} | Latent D={id_lat.shape[1]}")
+
+    eval_pair(energy_model, mlp_model, id_lat, near_lat,
+              "CIFAR-10 (ID) vs CIFAR-100 (Near-OOD)")
+    eval_pair(energy_model, mlp_model, id_lat, far_lat,
+              "CIFAR-10 (ID) vs SVHN (Far-OOD)")
+
 
 if __name__ == "__main__":
     main()

@@ -3,7 +3,9 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from models.vqvae import VQVAE
+import os   
 
+os.makedirs("latent_codes", exist_ok=True)  
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
 model = VQVAE().to(device)

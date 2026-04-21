@@ -23,3 +23,6 @@ class VQVAE(nn.Module):
         z = self.encoder(x)
         x_recon = self.decoder(z)
         return x_recon, torch.tensor(0.0)
+
+    def encode(self, x):   # ✅ ADD THIS
+        return self.encoder(x)

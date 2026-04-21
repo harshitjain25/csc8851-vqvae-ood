@@ -1,60 +1,85 @@
-import os
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, TensorDataset
+import torch.nn as nn
+import torch.optim as optim
 from models.energy_model import EnergyMLP
 
-DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
+print("STARTING ENERGY TRAINING...", flush=True)
 
-def load_latents(path: str) -> np.ndarray:
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Missing latent file: {path}")
-    return np.load(path).astype(np.float32)
+# ----------------------------
+# 1. Load latent data
+# ----------------------------
+cifar10 = np.load("latent_codes/cifar10.npy")
+cifar100 = np.load("latent_codes/cifar100.npy")
+svhn = np.load("latent_codes/svhn.npy")
 
-def main():
-    # Train only on CIFAR-10 latents
-    X = load_latents("latent_codes/cifar10.npy")
-    D = X.shape[1]
+# ----------------------------
+# 2. Create dataset
+# ----------------------------
+X = np.concatenate([cifar10, cifar100, svhn], axis=0)
 
-    ds = TensorDataset(torch.from_numpy(X))
-    loader = DataLoader(ds, batch_size=256, shuffle=True)
+y = np.concatenate([
+    np.zeros(len(cifar10)),                     # ID = 0
+    np.ones(len(cifar100) + len(svhn))          # OOD = 1
+], axis=0)
 
-    model = EnergyMLP(dim=D).to(DEVICE)
-    opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+# ----------------------------
+# 3. Normalize (IMPORTANT FIX)
+# ----------------------------
+X = (X - X.mean()) / (X.std() + 1e-8)
 
-    # Margin hyperparameters: push ID energy below m_in, pseudo-OOD above m_out
-    m_in  = -10.0
-    m_out =  -5.0
+# ----------------------------
+# 4. Shuffle
+# ----------------------------
+perm = np.random.permutation(len(X))
+X = X[perm]
+y = y[perm]
 
-    epochs = 10
-    for ep in range(1, epochs + 1):
-        model.train()
-        total = 0.0
-        for (z,) in loader:
-            z = z.to(DEVICE)
+# ----------------------------
+# 5. Convert to torch
+# ----------------------------
+X = torch.tensor(X, dtype=torch.float32)
+y = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
 
-            # Gaussian noise as pseudo-OOD (same shape as real latents)
-            z_noise = torch.randn_like(z)
+# ----------------------------
+# 6. Model
+# ----------------------------
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-            energy_id  = model(z)        # (B,1)
-            energy_ood = model(z_noise)  # (B,1)
+model = EnergyMLP(dim=X.shape[1]).to(device)
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-            # Hinge loss: penalise ID energy above m_in, OOD energy below m_out
-            loss_in  = torch.clamp(energy_id  - m_in,  min=0).pow(2).mean()
-            loss_out = torch.clamp(m_out - energy_ood,  min=0).pow(2).mean()
-            loss = loss_in + loss_out
+X = X.to(device)
+y = y.to(device)
 
-            opt.zero_grad()
-            loss.backward()
-            opt.step()
+# ----------------------------
+# 7. Training loop
+# ----------------------------
+epochs = 10
+batch_size = 512
 
-            total += loss.item() * z.size(0)
+for epoch in range(epochs):
+    model.train()
+    total_loss = 0
 
-        print(f"Epoch {ep:02d} | loss={total/len(ds):.4f}")
+    for i in range(0, len(X), batch_size):
+        xb = X[i:i+batch_size]
+        yb = y[i:i+batch_size]
 
-    os.makedirs("checkpoints", exist_ok=True)
-    torch.save({"dim": D, "state_dict": model.state_dict()}, "checkpoints/energy_mlp.pth")
-    print("Saved: checkpoints/energy_mlp.pth")
+        logits = model(xb)
+        loss = criterion(logits, yb)
 
-if __name__ == "__main__":
-    main()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    print(f"Epoch {epoch+1:02d} | loss={total_loss:.4f}", flush=True)
+
+# ----------------------------
+# 8. Save model
+# ----------------------------
+torch.save(model.state_dict(), "checkpoints/energy_mlp.pth")
+print("Saved: checkpoints/energy_mlp.pth")

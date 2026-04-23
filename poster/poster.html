@@ -4,224 +4,203 @@
 <meta charset="utf-8">
 <title>Improving Energy-Based OOD Detection using Generative Modeling</title>
 <style>
-  /* ========= 48" x 36" LANDSCAPE ========= */
+  /* ========= LIGHT BLUE THEME — 48" × 30" LANDSCAPE ========= */
   @page { size: 48in 30in; margin: 0; }
   html, body { margin: 0; padding: 0; }
   body {
     width: 48in; height: 30in;
     font-family: "Helvetica Neue", Arial, sans-serif;
-    color: #111;
-    background: #fff;
+    color: #0D1B2E;
+    background: #E8F3FB;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
   .page {
     width: 48in; height: 30in;
-    padding: 0.5in;
+    padding: 0.38in 0.45in 0.32in;
     box-sizing: border-box;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
-    row-gap: 0.25in;
+    row-gap: 0.2in;
   }
 
   /* ========= HEADER ========= */
   header {
-    background: linear-gradient(135deg, #0B2A4A 0%, #1556A6 55%, #1E7A4E 100%);
+    background: linear-gradient(135deg, #0D3B7A 0%, #1565C0 50%, #1E88E5 100%);
     color: #fff;
-    padding: 0.5in 0.7in;
-    border-radius: 0.18in;
+    padding: 0.38in 0.6in;
+    border-radius: 0.15in;
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    column-gap: 0.5in;
+    column-gap: 0.45in;
   }
   header h1 {
     margin: 0;
-    font-size: 76pt;
+    font-size: 72pt;
     line-height: 1.02;
     font-weight: 800;
     letter-spacing: -0.5px;
   }
   header h1 em { font-style: normal; color: #FFD451; }
   header .sub {
-    margin-top: 0.22in;
-    font-size: 24pt;
-    opacity: 0.92;
+    margin-top: 0.16in;
+    font-size: 23pt;
+    opacity: 0.90;
     font-weight: 300;
   }
   header .authors-side {
     text-align: right;
-    font-size: 22pt;
-    line-height: 1.4;
-  }
-  header .authors-side b { display: block; color: #FFD451; font-size: 26pt; }
-  header .authors-side .email { color: #cfd8e8; font-size: 16pt; font-family: "JetBrains Mono", Menlo, monospace; }
-
-  /* ========= ABSTRACT BAND ========= */
-  .abstract {
-    background: #FFF7D6;
-    border-left: 10px solid #FFD451;
-    padding: 0.3in 0.55in;
-    border-radius: 0.1in;
     font-size: 21pt;
     line-height: 1.4;
   }
-  .abstract b { color: #8A6100; }
+  header .authors-side b { display: block; color: #FFD451; font-size: 25pt; }
+  header .authors-side .email { color: #B8D4F0; font-size: 15pt; font-family: "JetBrains Mono", Menlo, monospace; }
+
+  /* ========= ABSTRACT BAND ========= */
+  .abstract {
+    background: #DDEEFF;
+    border-left: 10px solid #1565C0;
+    padding: 0.22in 0.5in;
+    border-radius: 0.1in;
+    font-size: 20pt;
+    line-height: 1.38;
+  }
+  .abstract b { color: #0D3B7A; }
 
   /* ========= MAIN 3-COLUMN ========= */
-  .cols { display: grid; grid-template-columns: 1fr 1.05fr 1fr; column-gap: 0.35in; height: 100%; }
+  .cols { display: grid; grid-template-columns: 1fr 1.05fr 1fr; column-gap: 0.28in; height: 100%; }
   .col {
     display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: space-between;  /* sections size to content; extra space falls BETWEEN them */
+    gap: 0.18in;
   }
 
   section {
-    background: #FAFBFD;
-    border: 2px solid #DAE1EC;
-    border-radius: 0.15in;
-    padding: 0.3in 0.35in;
+    background: #F5FAFF;
+    border: 1.5px solid #A8CCEA;
+    border-radius: 0.12in;
+    padding: 0.22in 0.28in;
     overflow: hidden;
+    flex-shrink: 0;
   }
+  section.grow { flex: 1; }
   section h2 {
-    margin: 0 0 0.14in 0;
-    color: #0B2A4A;
-    font-size: 32pt;
-    border-bottom: 4px solid #FFD451;
-    padding-bottom: 6px;
+    margin: 0 0 0.1in 0;
+    color: #0D3B7A;
+    font-size: 30pt;
+    border-bottom: 3px solid #42A5F5;
+    padding-bottom: 5px;
     font-weight: 700;
   }
-  section p, section li { font-size: 19pt; line-height: 1.42; margin: 0 0 0.09in 0; }
-  section ul { margin: 0; padding-left: 0.3in; }
+  section p, section li { font-size: 18pt; line-height: 1.40; margin: 0 0 0.07in 0; }
+  section ul { margin: 0; padding-left: 0.28in; }
   section > *:last-child { margin-bottom: 0 !important; }
 
   .eq {
-    background: #fff;
-    padding: 13px 16px;
-    border-left: 6px solid #1556A6;
+    background: #EBF4FF;
+    padding: 10px 14px;
+    border-left: 5px solid #1565C0;
     font-family: "Cambria Math", Cambria, Georgia, serif;
-    font-size: 20pt;
-    margin: 0.1in 0;
+    font-size: 19pt;
+    margin: 0.08in 0;
     border-radius: 4px;
     line-height: 1.35;
   }
   .eq small {
     display: block;
-    font-size: 15pt;
-    color: #666;
-    margin-top: 5px;
+    font-size: 14pt;
+    color: #555;
+    margin-top: 4px;
     font-family: "Helvetica Neue", sans-serif;
     font-style: italic;
   }
 
   .plain-english {
-    background: #E8F2EC;
-    border-left: 6px solid #1E7A4E;
-    padding: 12px 16px;
+    background: #E1F0FF;
+    border-left: 5px solid #42A5F5;
+    padding: 10px 14px;
     border-radius: 4px;
-    margin: 0.1in 0;
-    font-size: 18pt;
-    line-height: 1.4;
+    margin: 0.08in 0;
+    font-size: 17pt;
+    line-height: 1.38;
   }
-  .plain-english b { color: #1E7A4E; }
+  .plain-english b { color: #0D3B7A; }
 
   /* ========= PIPELINE ========= */
   .pipeline {
     background: #fff;
-    border-radius: 0.1in;
-    padding: 0.2in;
+    border-radius: 0.08in;
+    padding: 0.14in;
     text-align: center;
-    border: 1px solid #E7EBF1;
+    border: 1px solid #C5DDEF;
   }
   .pipeline svg { width: 100%; height: auto; }
   .caption {
     text-align: center;
-    font-size: 12pt;
-    color: #555;
-    margin-top: 6px;
+    font-size: 11pt;
+    color: #4A6A8A;
+    margin-top: 5px;
     font-style: italic;
   }
 
   /* ========= TABLE ========= */
-  table { width: 100%; border-collapse: collapse; font-size: 17pt; }
-  th, td { padding: 11px 10px; text-align: center; }
+  table { width: 100%; border-collapse: collapse; font-size: 16pt; }
+  th, td { padding: 9px 8px; text-align: center; }
   th {
-    background: #0B2A4A;
+    background: #1565C0;
     color: #fff;
-    font-size: 16pt;
-    letter-spacing: .5px;
+    font-size: 15pt;
+    letter-spacing: .4px;
   }
-  tr:nth-child(even) td { background: #EEF2F8; }
-  tbody tr.ours td { background: #FFF7D6; font-weight: 700; }
-  tbody tr.ours td:first-child { color: #8A6100; }
+  tr:nth-child(even) td { background: #EBF4FF; }
+  tbody tr.ours td { background: #DDEEFF; font-weight: 700; }
+  tbody tr.ours td:first-child { color: #0D3B7A; }
   td.metric { font-family: "JetBrains Mono", Menlo, monospace; }
   .subhead td {
-    background: #1556A6 !important;
+    background: #1976D2 !important;
     color: #fff;
-    font-size: 17pt;
+    font-size: 16pt;
     font-weight: 700;
     text-align: left;
   }
 
-  /* ========= BAR CHART ========= */
-  .bars { margin-top: 0.15in; }
-  .bars-title { font-size: 20pt; font-weight: 700; color: #0B2A4A; margin-bottom: 0.1in; }
-  .bar-row {
-    display: grid;
-    grid-template-columns: 2.4in 1fr 0.85in;
-    align-items: center;
-    margin: 9px 0;
-    font-size: 17pt;
-  }
-  .bar-wrap { background: #E7EBF1; height: 32px; border-radius: 3px; overflow: hidden; }
-  .bar { height: 100%; }
-  .bar.baseline { background: #9CA6B4; }
-  .bar.energy { background: #D6735A; }
-  .bar.mlp { background: #1E7A4E; }
-  .bar.combined { background: #4A2C82; }
-  .bar-val {
-    text-align: right;
-    font-family: "JetBrains Mono", Menlo, monospace;
-    font-size: 17pt;
-    font-weight: 600;
-  }
-
   /* ========= TAKEAWAY ========= */
-  .takeaway { background: #1E7A4E; color: #fff; border: none; }
-  .takeaway h2 { color: #FFF7D6; border-bottom-color: #FFD451; }
-  .takeaway ul li { color: #fff; font-size: 19pt; margin-bottom: 10px; line-height: 1.38; }
+  .takeaway { background: #0D3B7A; color: #fff; border: none; }
+  .takeaway h2 { color: #E3F2FD; border-bottom-color: #42A5F5; }
+  .takeaway ul li { color: #E8F4FF; font-size: 18pt; margin-bottom: 8px; line-height: 1.36; }
   .takeaway b { color: #FFD451; }
 
   /* ========= FOOTER ========= */
   footer {
-    background: #0B2A4A;
-    color: #E0E6F0;
-    padding: 0.3in 0.55in;
-    border-radius: 0.12in;
-    font-size: 13.5pt;
+    background: #0D3B7A;
+    color: #D0E6F5;
+    padding: 0.22in 0.5in;
+    border-radius: 0.1in;
+    font-size: 13pt;
     display: grid;
     grid-template-columns: 1.7fr 1fr;
-    gap: 0.4in;
+    gap: 0.35in;
     align-items: start;
   }
   footer b.ftitle {
     color: #FFD451;
-    font-size: 17pt;
+    font-size: 16pt;
     display: block;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
-  footer ol { margin: 0; padding-left: 0.22in; line-height: 1.4; }
+  footer ol { margin: 0; padding-left: 0.2in; line-height: 1.38; }
   footer .repo {
     font-family: "JetBrains Mono", Menlo, monospace;
     color: #FFD451;
-    font-size: 14pt;
+    font-size: 13pt;
   }
 
-  .mini-table { font-size: 17pt; width: 100%; border-collapse: collapse; margin-top: 0.1in; }
-  .mini-table td { padding: 8px 10px; border-bottom: 1px solid #DAE1EC; }
-  .mini-table td:first-child { font-weight: 600; color: #0B2A4A; }
+  .mini-table { font-size: 16pt; width: 100%; border-collapse: collapse; margin-top: 0.08in; }
+  .mini-table td { padding: 7px 9px; border-bottom: 1px solid #C5DDEF; }
+  .mini-table td:first-child { font-weight: 600; color: #0D3B7A; }
   .mini-table td.num { font-family: "JetBrains Mono", Menlo, monospace; text-align: right; }
 </style>
 </head>
@@ -252,7 +231,7 @@
   <div class="cols">
 
     <!-- ───── LEFT COLUMN ───── -->
-    <div class="col rows-3">
+    <div class="col">
 
       <section>
         <h2>1. Motivation</h2>
@@ -300,7 +279,7 @@
     </div>
 
     <!-- ───── MIDDLE COLUMN ───── -->
-    <div class="col rows-3">
+    <div class="col">
 
       <section>
         <h2>4. Method — The Pipeline</h2>
@@ -311,7 +290,7 @@
                 <path d="M0,0 L0,6 L9,3 z" fill="#333"/>
               </marker>
               <linearGradient id="vqg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#1556A6"/><stop offset="100%" stop-color="#0B2A4A"/>
+                <stop offset="0%" stop-color="#1565C0"/><stop offset="100%" stop-color="#0D3B7A"/>
               </linearGradient>
             </defs>
 
@@ -405,7 +384,7 @@
     </div>
 
     <!-- ───── RIGHT COLUMN ───── -->
-    <div class="col rows-5">
+    <div class="col">
 
       <section>
         <h2>6. Experimental Setup</h2>
@@ -446,14 +425,14 @@
         <div class="caption">Table 1 — AUROC/AUPR: higher is better. FPR@95: lower is better. Our best detector highlighted.</div>
 
         <img src="../outputs/auroc_bars.png"
-             style="width:100%; margin-top:0.15in; border-radius:0.08in;"
+             style="width:100%; max-height:3.4in; object-fit:contain; margin-top:0.1in; border-radius:0.06in; display:block;"
              alt="AUROC grouped bar chart comparing all methods on Near-OOD and Far-OOD">
-        <div class="caption">Figure 1 — AUROC comparison across all methods. Solid bars = Far-OOD (SVHN), hatched = Near-OOD (CIFAR-100).</div>
+        <div class="caption">Figure 1 — AUROC comparison. Solid = Far-OOD (SVHN) · Hatched = Near-OOD (CIFAR-100).</div>
 
         <img src="../outputs/roc_curves.png"
-             style="width:100%; margin-top:0.15in; border-radius:0.08in;"
+             style="width:100%; max-height:3.4in; object-fit:contain; margin-top:0.08in; border-radius:0.06in; display:block;"
              alt="ROC curves for all methods on Near-OOD and Far-OOD">
-        <div class="caption">Figure 2 — ROC curves. Dashed lines = Liu et al. 2020 baselines. Solid lines = our VQ-VAE methods.</div>
+        <div class="caption">Figure 2 — ROC curves. Dashed = Liu et al. 2020 · Solid = our VQ-VAE methods.</div>
       </section>
 
       <section class="takeaway">

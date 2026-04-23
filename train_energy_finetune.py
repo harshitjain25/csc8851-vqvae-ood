@@ -21,7 +21,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, Dataset
 from torchvision import datasets, transforms
 from models.wideresnet import WideResNet
 
@@ -58,26 +58,33 @@ cifar10_train = datasets.CIFAR10("./data", train=True, download=True, transform=
 id_loader = DataLoader(cifar10_train, batch_size=BATCH_IN, shuffle=True,
                        num_workers=2, pin_memory=True)
 
-# Auxiliary OOD: 300K Random Images
-print("Loading 300K Random Images...", flush=True)
-if not os.path.exists(OOD_NPY):
-    raise FileNotFoundError(
-        f"{OOD_NPY} not found.\n"
-        "Download with:\n"
-        "  mkdir -p data && wget -P data/ "
-        "https://people.eecs.berkeley.edu/~hendrycks/300K_random_images.npy"
-    )
-raw = np.load(OOD_NPY)             # (300000, 32, 32, 3) uint8
-print(f"  Loaded: {raw.shape}", flush=True)
+# Auxiliary OOD: 300K Random Images — memory-mapped so Colab RAM is not exhausted
+class RandomImagesDataset(Dataset):
+    """Reads 300K_random_images.npy one batch at a time via memory-mapping."""
+    def __init__(self, path, mean, std):
+        if not os.path.exists(path):
+            raise FileNotFoundError(
+                f"{path} not found.\n"
+                "Download with:\n"
+                "  mkdir -p data && wget -P data/ "
+                "https://people.eecs.berkeley.edu/~hendrycks/300K_random_images.npy"
+            )
+        self.data = np.load(path, mmap_mode='r')   # never fully loaded into RAM
+        self.mean = torch.tensor(mean).view(3, 1, 1)
+        self.std  = torch.tensor(std).view(3, 1, 1)
 
-# Apply same normalisation as CIFAR-10
-t_mean = torch.tensor(MEAN).view(3, 1, 1)
-t_std  = torch.tensor(STD).view(3, 1, 1)
-ood_t  = torch.from_numpy(raw).permute(0, 3, 1, 2).float().div(255.0)
-ood_t  = (ood_t - t_mean) / t_std
+    def __len__(self):
+        return len(self.data)
 
-ood_loader = DataLoader(TensorDataset(ood_t), batch_size=BATCH_OUT, shuffle=True,
-                        num_workers=0, pin_memory=True)
+    def __getitem__(self, idx):
+        img = torch.from_numpy(self.data[idx].copy()).permute(2, 0, 1).float() / 255.0
+        return ((img - self.mean) / self.std,)
+
+print("Indexing 300K Random Images (memory-mapped — no RAM load)...", flush=True)
+ood_ds     = RandomImagesDataset(OOD_NPY, MEAN, STD)
+ood_loader = DataLoader(ood_ds, batch_size=BATCH_OUT, shuffle=True,
+                        num_workers=2, pin_memory=True)
+print(f"  Dataset size: {len(ood_ds)}", flush=True)
 
 # Load pre-trained model
 model = WideResNet(depth=40, widen_factor=2, num_classes=10).to(DEVICE)

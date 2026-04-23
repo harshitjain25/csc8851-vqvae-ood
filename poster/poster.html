@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <title>Improving Energy-Based OOD Detection using Generative Modeling</title>
 <style>
-  /* ========= LIGHT BLUE THEME — 48" × 36" LANDSCAPE ========= */
-  @page { size: 48in 36in; margin: 0; }
+  /* ========= LIGHT BLUE THEME — 36" × 24" LANDSCAPE ========= */
+  @page { size: 36in 24in; margin: 0; }
   html, body { margin: 0; padding: 0; }
   body {
-    width: 48in; height: 36in;
+    width: 36in; height: 24in;
+    position: relative; overflow: hidden;
     font-family: "Helvetica Neue", Arial, sans-serif;
     color: #0D1B2E;
     background: #E8F3FB;
@@ -16,6 +17,8 @@
     print-color-adjust: exact;
   }
 
+  /* Original content kept at 48×36; CSS scale brings it to 32×24,
+     then 2in left margin centres it inside the 36×24 page.         */
   .page {
     width: 48in; height: 36in;
     padding: 0.38in 0.45in 0.32in;
@@ -23,6 +26,10 @@
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     row-gap: 0.2in;
+    position: absolute;
+    left: 2in; top: 0;
+    transform-origin: 0 0;
+    transform: scale(0.66667);
   }
 
   /* ========= HEADER ========= */

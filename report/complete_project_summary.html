@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>complete_project_summary</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="complete-project-summary">Complete Project Summary</h1>
+<h2
+id="improving-energy-based-out-of-distribution-detection-using-generative-modeling">Improving
+Energy-Based Out-of-Distribution Detection Using Generative
+Modeling</h2>
+<h3 id="csc-8851-harshit-jain-parsh-jadon">CSC 8851 — Harshit Jain &amp;
+Parsh Jadon</h3>
+<hr />
+<h1 id="part-1-what-is-the-problem-we-are-solving">PART 1: WHAT IS THE
+PROBLEM WE ARE SOLVING?</h1>
+<h2 id="the-big-idea-in-plain-words">The Big Idea — In Plain Words</h2>
+<p>Imagine you train an AI to recognize cats and dogs. It learns very
+well. Now you show it a picture of a pizza.</p>
+<p>A smart AI should say: <strong>“I don’t know what this is.”</strong>
+But most AIs will confidently say: <strong>“That’s a dog — 97%
+sure.”</strong></p>
+<p>This is the <strong>overconfidence problem</strong>, and it is very
+dangerous in real life: - A self-driving car that confidently
+misclassifies a child as a tree - A medical AI that confidently
+diagnoses a healthy person as sick - An industrial inspection system
+that misses defects</p>
+<p><strong>Out-of-Distribution (OOD) Detection</strong> is the field
+that tries to solve this. The goal is to build a system that can say:
+<em>“I have never seen anything like this before — I am not
+sure.”</em></p>
+<hr />
+<h1 id="part-2-what-has-been-done-before-the-baseline-paper">PART 2:
+WHAT HAS BEEN DONE BEFORE? (The Baseline Paper)</h1>
+<h2 id="the-paper-we-reproduced">The Paper We Reproduced</h2>
+<p><strong>Title:</strong> Energy-based Out-of-Distribution Detection
+<strong>Authors:</strong> Liu, Wang, Owens, Li
+<strong>Published:</strong> NeurIPS 2020 (one of the top AI conferences
+in the world)</p>
+<h2 id="what-they-proposed">What They Proposed</h2>
+<p>Most people used <strong>softmax probabilities</strong> to detect OOD
+images. The problem with this is that softmax scores are always forced
+to sum to 1, making the model always sound confident even when it
+shouldn’t be.</p>
+<p>Liu et al. (2020) proposed using the <strong>Energy Score</strong>
+instead.</p>
+<h3 id="what-is-the-energy-score">What is the Energy Score?</h3>
+<p>The energy score is a single number calculated from the raw output of
+the classifier:</p>
+<pre><code>Energy(x) = -log( sum of e^(logit_i) for all classes i )</code></pre>
+<p><strong>In plain words:</strong> - Low energy = the image looks very
+much like one of the known classes - High energy = the image doesn’t fit
+any known class well</p>
+<p>So: <strong>high energy = likely OOD image</strong>.</p>
+<h3 id="what-model-did-they-use">What Model Did They Use?</h3>
+<p>They used <strong>WideResNet-40-2 (WRN-40-2)</strong>: - A deep
+neural network with 40 layers - “40” = 40 layers deep, “2” = 2× wider
+than standard - Trained on CIFAR-10 (10 categories of everyday images) -
+Gets ~94% accuracy on CIFAR-10</p>
+<h3 id="did-they-also-fine-tune-the-model">Did They Also Fine-Tune the
+Model?</h3>
+<p>Yes. They also fine-tuned WRN-40-2 with a special training trick: -
+Fed the model “fake OOD” training images (300,000 random images from the
+internet) - Forced real images to have low energy, fake OOD to have high
+energy - The hope: the model learns to better separate real from
+fake</p>
+<hr />
+<h1 id="part-3-what-did-we-propose-our-extension">PART 3: WHAT DID WE
+PROPOSE? (Our Extension)</h1>
+<h2 id="our-key-idea">Our Key Idea</h2>
+<p>The baseline asks: <em>“Does this image look like one of my 10 known
+classes?”</em></p>
+<p>We asked a different question: <strong>“Does this image look like a
+CIFAR-10 image at all?”</strong></p>
+<p>These are very different questions: - The first relies on what the
+classifier learned about class labels - The second relies on what the
+image actually <em>looks like</em> — its visual structure</p>
+<p>To answer our question, we used a <strong>VQ-VAE (Vector Quantized
+Variational Autoencoder)</strong>.</p>
+<h2 id="what-is-a-vq-vae">What is a VQ-VAE?</h2>
+<p>A VQ-VAE is a generative model — it learns to compress images into a
+small “code” and then reconstruct them back.</p>
+<p><strong>Think of it like a visual dictionary:</strong> - The VQ-VAE
+learned from CIFAR-10 images only - It built a vocabulary of 512 “visual
+words” (codebook entries) - When you give it any image, it translates it
+into a sequence of these visual words</p>
+<p><strong>Why does this help with OOD detection?</strong> - The
+vocabulary was built ONLY from CIFAR-10 images - When you show it an
+SVHN digit or CIFAR-100 image, it forces the image into a vocabulary it
+was never designed for - The resulting “translation” looks awkward and
+unusual - Our detectors learned to recognize this awkwardness</p>
+<h2 id="our-three-detectors">Our Three Detectors</h2>
+<p>We built three separate detectors that all take the VQ-VAE’s code as
+input:</p>
+<h3 id="detector-1-energy-mlp-unsupervised">Detector 1: Energy MLP
+(Unsupervised)</h3>
+<ul>
+<li>A small neural network (3 layers, 256 units each)</li>
+<li>Takes the 4096-dimensional VQ-VAE code</li>
+<li>Outputs a single energy score (lower = more normal, higher = more
+OOD)</li>
+<li>Trained with a <strong>contrastive hinge loss</strong>:
+<ul>
+<li>Real CIFAR-10 codes → push energy LOW</li>
+<li>Fake “pseudo-OOD” codes → push energy HIGH</li>
+<li><strong>No real OOD data was used during training!</strong></li>
+</ul></li>
+</ul>
+<h3 id="detector-2-ood-mlp-supervised">Detector 2: OOD MLP
+(Supervised)</h3>
+<ul>
+<li>Same structure as Energy MLP</li>
+<li>But trained with binary classification (0 = normal, 1 = OOD)</li>
+<li>Uses standard binary cross-entropy loss</li>
+<li>Trained on CIFAR-10 codes (labeled 0) and fake OOD codes (labeled
+1)</li>
+</ul>
+<h3 id="detector-3-combined-score">Detector 3: Combined Score</h3>
+<ul>
+<li>Blends Energy MLP and OOD MLP scores together</li>
+<li>Formula:
+<code>score = α × energy_score + (1 − α) × mlp_score</code></li>
+<li>Tried two approaches:
+<ul>
+<li>Fixed α = 0.5 (equal blend)</li>
+<li>Learned α* (grid search to find the best value)</li>
+</ul></li>
+</ul>
+<h2 id="how-did-we-make-fake-ood-data">How Did We Make Fake OOD
+Data?</h2>
+<p>Since we didn’t want to use real OOD data during training (that would
+be cheating), we created <strong>pseudo-OOD</strong> from CIFAR-10
+codes:</p>
+<ol type="1">
+<li><p><strong>Spatial Shuffle (50%)</strong>: Take a real CIFAR-10 code
+and randomly scramble the spatial positions. Like taking a sentence and
+randomly rearranging the words — all valid words, but meaningless
+order.</p></li>
+<li><p><strong>Gaussian Noise (50%)</strong>: Pure random
+4096-dimensional noise vectors.</p></li>
+</ol>
+<p>The hope was these would teach the model what “normal” vs “abnormal”
+codes look like.</p>
+<hr />
+<h1 id="part-4-how-we-built-everything">PART 4: HOW WE BUILT
+EVERYTHING</h1>
+<h2 id="the-full-technical-pipeline">The Full Technical Pipeline</h2>
+<pre><code>Image (32×32×3 pixels)
+    │
+    ▼
+VQ-VAE Encoder
+    │
+    ▼
+Quantizer (snaps to nearest of 512 codebook entries)
+    │
+    ▼
+4096-D Latent Code (64 spatial positions × 64 dimensions)
+    │
+    ├──────────────────────────────────────┐
+    ▼                                      ▼
+Energy MLP                             OOD MLP
+(unsupervised hinge loss)         (supervised BCE loss)
+    │                                      │
+    └──────────────┬───────────────────────┘
+                   ▼
+           Combined Score s
+                   │
+                   ▼
+           s &gt; threshold?
+           YES → OOD image
+           NO  → Normal image</code></pre>
+<h2 id="what-scripts-we-built-in-order">What Scripts We Built (In
+Order)</h2>
+<table>
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr>
+<th>Script</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>train_vqvae.py</code></td>
+<td>Trains the VQ-VAE on 50,000 CIFAR-10 training images</td>
+</tr>
+<tr>
+<td><code>extract_latents.py</code></td>
+<td>Passes all test images through VQ-VAE, saves the 4096-D codes</td>
+</tr>
+<tr>
+<td><code>train_energy.py</code></td>
+<td>Trains the Energy MLP with hinge loss</td>
+</tr>
+<tr>
+<td><code>train_mlp.py</code></td>
+<td>Trains the OOD MLP with binary cross-entropy</td>
+</tr>
+<tr>
+<td><code>train_wrn.py</code></td>
+<td>Trains the WideResNet-40-2 classifier from scratch</td>
+</tr>
+<tr>
+<td><code>train_energy_finetune.py</code></td>
+<td>Fine-tunes WRN-40-2 with energy margin loss</td>
+</tr>
+<tr>
+<td><code>evaluate_energy.py</code></td>
+<td>Evaluates WRN-40-2 energy scores</td>
+</tr>
+<tr>
+<td><code>evaluate_ood.py</code></td>
+<td>Evaluates latent Energy MLP and OOD MLP scores</td>
+</tr>
+<tr>
+<td><code>compare_all.py</code></td>
+<td>Unified script: runs all 5 methods, produces comparison tables and
+graphs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-datasets-we-used">What Datasets We Used</h2>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Role</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CIFAR-10</td>
+<td>In-distribution (normal)</td>
+<td>10,000 test images</td>
+<td>10 classes: cats, dogs, cars, etc.</td>
+</tr>
+<tr>
+<td>CIFAR-100</td>
+<td>Near-OOD (hard test)</td>
+<td>10,000 test images</td>
+<td>100 classes, similar visual style</td>
+</tr>
+<tr>
+<td>SVHN</td>
+<td>Far-OOD (easy test)</td>
+<td>26,032 test images</td>
+<td>Street View House Numbers, very different from CIFAR-10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-two-ood-test-sets">Why Two OOD Test Sets?</h3>
+<ul>
+<li><strong>CIFAR-100 (Near-OOD)</strong> is the hard test. Same type of
+images (natural photos), just more categories. The model has to detect
+subtle differences.</li>
+<li><strong>SVHN (Far-OOD)</strong> is the easy test. Digit images look
+completely different from natural objects. Any decent detector should
+catch these.</li>
+</ul>
+<h2 id="how-we-measured-performance">How We Measured Performance</h2>
+<p>Three metrics, all standard in OOD detection research:</p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 30%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Meaning</th>
+<th>Better when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AUROC</strong></td>
+<td>How well the score separates normal from OOD images</td>
+<td>Higher (closer to 1.0)</td>
+</tr>
+<tr>
+<td><strong>AUPR</strong></td>
+<td>Precision-Recall trade-off</td>
+<td>Higher (closer to 1.0)</td>
+</tr>
+<tr>
+<td><strong>FPR@95TPR</strong></td>
+<td>At 95% OOD detection rate, what % of normal images get falsely
+flagged?</td>
+<td>Lower (closer to 0)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="part-5-what-problems-did-we-run-into">PART 5: WHAT PROBLEMS DID
+WE RUN INTO?</h1>
+<h2 id="problem-1-wrong-baseline-model">Problem 1: Wrong Baseline
+Model</h2>
+<p><strong>What happened:</strong> We initially trained a small 2-layer
+CNN as the baseline instead of WideResNet-40-2 (what the paper actually
+used).</p>
+<p><strong>Why it was wrong:</strong> Our small CNN gave us weak
+numbers. Comparing our VQ-VAE against a weak CNN would make our results
+look artificially good and wouldn’t be a fair comparison to the
+paper.</p>
+<p><strong>How we fixed it:</strong> We trained the actual
+WideResNet-40-2 (40 layers, ~36 million parameters) from scratch, which
+got ~94% accuracy on CIFAR-10 and matched the paper’s reported
+numbers.</p>
+<p><strong>What we learned:</strong> Always use the exact model from the
+paper you’re reproducing. Numbers need to be comparable.</p>
+<hr />
+<h2 id="problem-2-ram-out-of-memory-crash">Problem 2: RAM Out-of-Memory
+Crash</h2>
+<p><strong>What happened:</strong> During energy fine-tuning on Google
+Colab, the training script loaded all 300,000 Random Images into RAM as
+a single tensor. This took ~3.5 GB of RAM. Colab’s free tier only has
+~12 GB, and the model + data was already using most of it. The notebook
+crashed.</p>
+<p><strong>Error message:</strong>
+<code>RuntimeError: CUDA out of memory</code> / process killed by
+kernel</p>
+<p><strong>How we fixed it:</strong> We replaced the in-memory approach
+with <strong>memory-mapped loading</strong>:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BEFORE (crash):</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ood_tensor <span class="op">=</span> torch.tensor(np.load(<span class="st">&quot;random_images.npy&quot;</span>))  <span class="co"># loads 3.5GB at once</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> TensorDataset(ood_tensor)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># AFTER (fixed):</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RandomImagesDataset(Dataset):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, path):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data <span class="op">=</span> np.load(path, mmap_mode<span class="op">=</span><span class="st">&#39;r&#39;</span>)  <span class="co"># never fully loaded!</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, idx):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (preprocess(<span class="va">self</span>.data[idx]),)</span></code></pre></div>
+<p><strong>What we learned:</strong> For large datasets, always use
+memory-mapped loading. Never load the entire dataset into RAM as a
+tensor.</p>
+<hr />
+<h2 id="problem-3-macos-multiprocessing-crash">Problem 3: macOS
+Multiprocessing Crash</h2>
+<p><strong>What happened:</strong> When we ran
+<code>compare_all.py</code> on a local Mac, it crashed immediately
+with:</p>
+<pre><code>RuntimeError: An attempt has been made to start a new process
+before the current process has finished its bootstrapping phase.</code></pre>
+<p><strong>Why it happened:</strong> We had <code>num_workers=2</code>
+in the DataLoader. On macOS, Python uses “spawn” for multiprocessing
+(not “fork” like Linux). This requires all top-level code to be inside
+<code>if __name__ == '__main__':</code>. Our script had model loading
+code at the top level.</p>
+<p><strong>How we fixed it:</strong> Changed <code>num_workers=2</code>
+to <code>num_workers=0</code> everywhere. No worker subprocesses — data
+loading happens on the main process. Slightly slower but stable.</p>
+<p><strong>What we learned:</strong> macOS handles Python
+multiprocessing differently than Linux. Use <code>num_workers=0</code>
+for portability in research scripts.</p>
+<hr />
+<h2 id="problem-4-energy-fine-tuning-made-the-baseline-worse">Problem 4:
+Energy Fine-Tuning Made the Baseline WORSE</h2>
+<p><strong>What happened:</strong> This was a surprising result. After
+fine-tuning WRN-40-2 with the energy margin loss (using 300K random
+images), we expected better OOD detection. Instead:</p>
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 34%" />
+<col style="width: 34%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>Dataset</th>
+<th>Before Fine-Tuning</th>
+<th>After Fine-Tuning</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SVHN (Far-OOD)</td>
+<td><strong>0.9343</strong> AUROC</td>
+<td>0.7829 AUROC</td>
+<td><strong>−15 points!</strong></td>
+</tr>
+<tr>
+<td>CIFAR-100 (Near-OOD)</td>
+<td><strong>0.8588</strong> AUROC</td>
+<td>0.7440 AUROC</td>
+<td><strong>−12 points!</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Fine-tuning made the model significantly worse.</p>
+<p><strong>Why did this happen?</strong> The energy fine-tuning method
+uses “300K Random Images” as proxy OOD data. These images: - Are random
+crops from the internet - Don’t look like actual test OOD data (SVHN or
+CIFAR-100) - So the model learned to flag these specific random
+textures, NOT real OOD distributions</p>
+<p>This is a known problem with “Outlier Exposure” methods — they are
+sensitive to the quality of the proxy OOD data.</p>
+<p><strong>What we learned:</strong> The choice of proxy OOD data
+matters enormously. If the proxy doesn’t match real OOD distributions,
+the model overfits to the proxy and performance degrades everywhere
+else. The pre-trained (no fine-tuning) energy score was actually
+better.</p>
+<hr />
+<h2 id="problem-5-our-latent-energy-score-was-near-random">Problem 5:
+Our Latent Energy Score Was Near-Random</h2>
+<p><strong>What happened:</strong> After training the Energy MLP, we
+evaluated it: - SVHN (Far-OOD): AUROC = <strong>0.5334</strong> (random
+= 0.5) - CIFAR-100 (Near-OOD): AUROC = <strong>0.5113</strong> (random =
+0.5)</p>
+<p>Our energy model was barely better than flipping a coin.</p>
+<p><strong>Why did this happen?</strong> The root cause: our
+<strong>pseudo-OOD training data was too artificial</strong>.</p>
+<p>We trained the model to distinguish: - Real CIFAR-10 codes (normal) -
+Spatially-shuffled CIFAR-10 codes + Gaussian noise (fake OOD)</p>
+<p>But real OOD datasets (SVHN, CIFAR-100) don’t look like random noise
+or spatially-shuffled codes. Their codes actually look reasonably
+similar to CIFAR-10 codes in the VQ-VAE’s latent space (because both use
+the same 512-word vocabulary).</p>
+<p>The model learned: <em>“shuffled/noisy codes = OOD”</em> But the
+actual test: <em>“SVHN/CIFAR-100 codes = OOD”</em></p>
+<p>These are very different boundaries, so the model failed.</p>
+<p><strong>What we learned:</strong> Fake OOD that is too artificial
+teaches the model the wrong decision boundary. To improve this, we would
+need more realistic “hard negatives” — fake OOD codes that look similar
+to CIFAR-10 codes but aren’t.</p>
+<hr />
+<h2 id="problem-6-combining-signals-made-things-worse">Problem 6:
+Combining Signals Made Things Worse</h2>
+<p><strong>What happened:</strong> We tried combining the Energy MLP
+score with the OOD MLP score using a 50/50 blend (α = 0.5):</p>
+<p>On Far-OOD (SVHN): - OOD MLP alone: <strong>0.9801 AUROC</strong>
+(great!) - Energy MLP alone: <strong>0.5334 AUROC</strong> (near-random)
+- 50/50 blend: <strong>0.9430 AUROC</strong> (worse than MLP alone!)</p>
+<p>Blending a good signal with a near-random signal made performance
+drop from 0.98 to 0.94.</p>
+<p><strong>How we fixed it:</strong> We grid-searched α on a held-out
+validation split, testing α = 0.0, 0.1, 0.2, …, 1.0. The optimal α*
+turned out to be <strong>0.0</strong> for both datasets — meaning:
+<strong>ignore the energy signal entirely and just use the OOD
+MLP</strong>.</p>
+<p>The combined score with α* = 0.0 recovered almost all the OOD MLP’s
+performance: - α* combination: <strong>0.9806 AUROC</strong>
+(essentially the same as MLP alone)</p>
+<p><strong>What we learned:</strong> Never blindly average two signals.
+If one signal is weak or noisy, including it with equal weight injects
+noise into the good signal. Always validate the blend weight.</p>
+<hr />
+<h1 id="part-6-the-final-results">PART 6: THE FINAL RESULTS</h1>
+<h2 id="complete-results-table">Complete Results Table</h2>
+<h3 id="near-ood-cifar-10-vs-cifar-100-the-hard-test">Near-OOD: CIFAR-10
+vs CIFAR-100 (The Hard Test)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>AUROC ↑</th>
+<th>AUPR ↑</th>
+<th>FPR@95 ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WRN-40-2 Energy (paper baseline)</td>
+<td><strong>0.8588</strong></td>
+<td>0.8569</td>
+<td>0.6253</td>
+</tr>
+<tr>
+<td>WRN-40-2 Fine-tuned (paper)</td>
+<td>0.7440</td>
+<td>0.6534</td>
+<td>0.5616</td>
+</tr>
+<tr>
+<td>VQ-VAE Latent Energy (ours)</td>
+<td>0.5113</td>
+<td>0.5321</td>
+<td>0.9550</td>
+</tr>
+<tr>
+<td>VQ-VAE Latent MLP (ours)</td>
+<td>0.7018</td>
+<td>0.6937</td>
+<td>0.8196</td>
+</tr>
+<tr>
+<td>VQ-VAE E+MLP α* (ours)</td>
+<td>0.7035</td>
+<td>0.6963</td>
+<td>0.8184</td>
+</tr>
+</tbody>
+</table>
+<h3 id="far-ood-cifar-10-vs-svhn-the-easy-test">Far-OOD: CIFAR-10 vs
+SVHN (The Easy Test)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>AUROC ↑</th>
+<th>AUPR ↑</th>
+<th>FPR@95 ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WRN-40-2 Energy (paper baseline)</td>
+<td>0.9343</td>
+<td>0.9682</td>
+<td>0.2577</td>
+</tr>
+<tr>
+<td>WRN-40-2 Fine-tuned (paper)</td>
+<td>0.7829</td>
+<td>0.8206</td>
+<td>0.3744</td>
+</tr>
+<tr>
+<td>VQ-VAE Latent Energy (ours)</td>
+<td>0.5334</td>
+<td>0.7789</td>
+<td>0.9518</td>
+</tr>
+<tr>
+<td><strong>VQ-VAE Latent MLP (ours)</strong></td>
+<td><strong>0.9801</strong></td>
+<td><strong>0.9920</strong></td>
+<td><strong>0.1000</strong></td>
+</tr>
+<tr>
+<td>VQ-VAE E+MLP α* (ours)</td>
+<td><strong>0.9806</strong></td>
+<td><strong>0.9922</strong></td>
+<td><strong>0.0962</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="part-7-head-to-head-comparison">PART 7: HEAD-TO-HEAD
+COMPARISON</h1>
+<h2 id="our-best-method-vs-the-papers-best-method">Our Best Method vs
+The Paper’s Best Method</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr>
+<th>Comparison</th>
+<th>Paper’s Best</th>
+<th>Our Best</th>
+<th>Winner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Far-OOD AUROC (SVHN)</td>
+<td>0.9343</td>
+<td><strong>0.9806</strong></td>
+<td><strong>Ours (+4.6%)</strong></td>
+</tr>
+<tr>
+<td>Far-OOD AUPR (SVHN)</td>
+<td>0.9682</td>
+<td><strong>0.9922</strong></td>
+<td><strong>Ours (+2.4%)</strong></td>
+</tr>
+<tr>
+<td>Far-OOD FPR@95 (SVHN)</td>
+<td>0.2577</td>
+<td><strong>0.0962</strong></td>
+<td><strong>Ours (−16%)</strong></td>
+</tr>
+<tr>
+<td>Near-OOD AUROC (CIFAR-100)</td>
+<td><strong>0.8588</strong></td>
+<td>0.7035</td>
+<td><strong>Paper (−15.5%)</strong></td>
+</tr>
+<tr>
+<td>Near-OOD AUPR (CIFAR-100)</td>
+<td><strong>0.8569</strong></td>
+<td>0.6963</td>
+<td><strong>Paper (−16%)</strong></td>
+</tr>
+<tr>
+<td>Near-OOD FPR@95 (CIFAR-100)</td>
+<td><strong>0.6253</strong></td>
+<td>0.8184</td>
+<td><strong>Paper (worse)</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="simple-takeaway">Simple Takeaway</h2>
+<pre><code>╔══════════════════════════════════════════════════════════════════╗
+║  Far-OOD (SVHN):   OUR METHOD WINS   (+5% AUROC, FPR cut in half)  ║
+║  Near-OOD (CIFAR-100):   PAPER WINS   (paper +15% AUROC)          ║
+╚══════════════════════════════════════════════════════════════════╝</code></pre>
+<hr />
+<h1 id="part-8-why-did-we-win-on-far-ood-and-lose-on-near-ood">PART 8:
+WHY DID WE WIN ON FAR-OOD AND LOSE ON NEAR-OOD?</h1>
+<h2 id="why-we-won-on-far-ood-svhn">Why We Won on Far-OOD (SVHN)</h2>
+<p>SVHN images are street view digit images. They look very different
+from CIFAR-10 natural images (animals, vehicles, etc.). When SVHN images
+go through the VQ-VAE (which was trained only on CIFAR-10), the encoder
+is forced to represent digits using a vocabulary built for natural
+objects. The result is a clearly “awkward” code pattern.</p>
+<p>Our OOD MLP, trained to recognize CIFAR-10 codes as normal, could
+easily identify these awkward patterns as OOD.</p>
+<p><strong>Bottom line:</strong> The VQ-VAE latent space provides strong
+signal for visually very different OOD images.</p>
+<h2 id="why-we-lost-on-near-ood-cifar-100">Why We Lost on Near-OOD
+(CIFAR-100)</h2>
+<p>CIFAR-100 images are natural photos just like CIFAR-10 — animals,
+plants, people, vehicles, landscapes. They are very similar in visual
+style to CIFAR-10 images. When CIFAR-100 images go through the VQ-VAE,
+the resulting codes look almost identical to CIFAR-10 codes because both
+datasets use the same types of natural image textures.</p>
+<p>The WRN-40-2 classifier, with its 40 layers of discriminative
+features, can detect subtle semantic differences between CIFAR-10 and
+CIFAR-100 classes. Our VQ-VAE focuses on visual reconstruction, not
+discrimination.</p>
+<p><strong>Bottom line:</strong> The VQ-VAE latent space cannot
+distinguish between CIFAR-10 and CIFAR-100 because they look too
+similar. The discriminative classifier has an advantage here.</p>
+<hr />
+<h1 id="part-9-what-did-we-successfully-reproduce">PART 9: WHAT DID WE
+SUCCESSFULLY REPRODUCE?</h1>
+<h2 id="reproducing-the-papers-baseline">Reproducing the Paper’s
+Baseline</h2>
+<p>We faithfully reproduced the Liu et al. (2020) paper’s main
+results:</p>
+<table>
+<thead>
+<tr>
+<th>Paper’s Reported Number</th>
+<th>Our Reproduced Number</th>
+<th>Match?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WRN-40-2 AUROC on SVHN ≈ 0.93</td>
+<td>0.9343</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>WRN-40-2 AUROC on CIFAR-100 ≈ 0.86</td>
+<td>0.8588</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>This is a significant achievement.</strong> Many papers are
+difficult to reproduce because: - Training details are not fully
+specified - Different random seeds produce different results - Hardware
+differences affect floating-point precision</p>
+<p>We matched the paper’s numbers, confirming our implementation is
+correct.</p>
+<hr />
+<h1 id="part-10-what-would-we-do-differently">PART 10: WHAT WOULD WE DO
+DIFFERENTLY?</h1>
+<h2 id="future-improvements">Future Improvements</h2>
+<h3 id="better-pseudo-ood-training-data">1. Better Pseudo-OOD Training
+Data</h3>
+<p>Instead of random noise and spatial shuffles, use: -
+<strong>CutMix-style latent perturbations</strong>: Mix regions of two
+different CIFAR-10 codes - <strong>Codebook index shuffling</strong>:
+Shuffle only certain spatial positions - <strong>Cross-class
+mixing</strong>: Mix codes from different CIFAR-10 classes The goal:
+create “hard negatives” that are close to real CIFAR-10 codes but
+slightly off, forcing the model to learn a tighter decision
+boundary.</p>
+<h3 id="larger-codebook">2. Larger Codebook</h3>
+<p>We used K = 512 codebook entries. A larger codebook (K = 1024 or
+4096) would give the VQ-VAE more vocabulary to express fine-grained
+visual differences. CIFAR-100 codes might look more distinct from
+CIFAR-10 codes.</p>
+<h3 id="stronger-encoder">3. Stronger Encoder</h3>
+<p>Our VQ-VAE used a simple 2-layer convolutional encoder. A
+WideResNet-based encoder would learn richer, more discriminative
+features. This could close the Near-OOD gap by making the codes from
+different datasets more distinguishable.</p>
+<h3 id="learnable-blend-weight">4. Learnable Blend Weight</h3>
+<p>Instead of grid-searching α on a validation set, train α as a learned
+parameter end-to-end. This way the model automatically learns to weight
+the energy and MLP signals based on which is more informative for the
+current type of OOD data.</p>
+<hr />
+<h1 id="part-11-final-conclusions">PART 11: FINAL CONCLUSIONS</h1>
+<h2 id="what-we-achieved">What We Achieved</h2>
+<ol type="1">
+<li><p><strong>We reproduced the paper.</strong> Liu et al. 2020’s
+WRN-40-2 energy score works exactly as reported. AUROC 0.93 on SVHN,
+0.86 on CIFAR-100 — verified.</p></li>
+<li><p><strong>We built a complete alternative OOD detection
+pipeline</strong> using VQ-VAE latent codes. This includes training
+scripts, evaluation scripts, and a unified comparison tool.</p></li>
+<li><p><strong>We beat the baseline on Far-OOD.</strong> Our Latent MLP
+achieves 0.98 AUROC on SVHN vs. the baseline’s 0.93 — a 5 percentage
+point improvement. FPR@95 dropped from 26% to 10%, meaning we catch the
+same percentage of OOD images with half the false alarms.</p></li>
+<li><p><strong>We identified exactly why our method fails on
+Near-OOD.</strong> CIFAR-100 codes look too similar to CIFAR-10 codes in
+our 512-entry codebook. This motivates a better encoder.</p></li>
+<li><p><strong>We found that fine-tuning with proxy OOD data can
+hurt.</strong> Energy fine-tuning degraded performance by ~15% on SVHN,
+a finding that aligns with known limitations of Outlier Exposure
+methods.</p></li>
+<li><p><strong>We proved the “combining two signals” problem.</strong>
+Averaging a strong signal (OOD MLP) with a weak one (Energy MLP)
+degrades performance. The learned α* correctly set itself to 0.0,
+ignoring the bad signal.</p></li>
+</ol>
+<h2 id="the-one-sentence-summary">The One-Sentence Summary</h2>
+<blockquote>
+<p>Our VQ-VAE latent space approach is <strong>5% better</strong> than
+the paper’s baseline on easy OOD images (SVHN) but <strong>15%
+worse</strong> on hard OOD images (CIFAR-100), revealing that generative
+model codes are powerful for visual outliers but not yet strong enough
+for semantically subtle ones.</p>
+</blockquote>
+<hr />
+<h1 id="appendix-key-numbers-to-remember-for-presentation">APPENDIX: KEY
+NUMBERS TO REMEMBER FOR PRESENTATION</h1>
+<table>
+<thead>
+<tr>
+<th>Fact</th>
+<th>Number</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline AUROC on SVHN</td>
+<td>0.93</td>
+</tr>
+<tr>
+<td>Our best AUROC on SVHN</td>
+<td><strong>0.98 (+5%)</strong></td>
+</tr>
+<tr>
+<td>Baseline FPR@95 on SVHN</td>
+<td>26%</td>
+</tr>
+<tr>
+<td>Our best FPR@95 on SVHN</td>
+<td><strong>10%</strong></td>
+</tr>
+<tr>
+<td>Baseline AUROC on CIFAR-100</td>
+<td><strong>0.86</strong></td>
+</tr>
+<tr>
+<td>Our best AUROC on CIFAR-100</td>
+<td>0.70 (−16%)</td>
+</tr>
+<tr>
+<td>α* optimal value</td>
+<td><strong>0.0</strong> (ignore energy signal)</td>
+</tr>
+<tr>
+<td>Energy MLP AUROC (both datasets)</td>
+<td>~0.51–0.53 (near-random)</td>
+</tr>
+<tr>
+<td>VQ-VAE codebook size</td>
+<td>512 entries</td>
+</tr>
+<tr>
+<td>VQ-VAE latent code dimension</td>
+<td><strong>4096-D</strong> (64 × 64)</td>
+</tr>
+<tr>
+<td>WRN-40-2 training accuracy</td>
+<td>~94% on CIFAR-10</td>
+</tr>
+<tr>
+<td>Fine-tuning effect on SVHN</td>
+<td>0.93 → 0.78 (WORSE)</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

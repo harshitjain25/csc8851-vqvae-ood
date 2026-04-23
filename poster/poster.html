@@ -5,10 +5,10 @@
 <title>Improving Energy-Based OOD Detection using Generative Modeling</title>
 <style>
   /* ========= LIGHT BLUE THEME — 48" × 30" LANDSCAPE ========= */
-  @page { size: 48in 30in; margin: 0; }
+  @page { size: 48in 26in; margin: 0; }
   html, body { margin: 0; padding: 0; }
   body {
-    width: 48in; height: 30in;
+    width: 48in; height: 26in;
     font-family: "Helvetica Neue", Arial, sans-serif;
     color: #0D1B2E;
     background: #E8F3FB;
@@ -17,7 +17,7 @@
   }
 
   .page {
-    width: 48in; height: 30in;
+    width: 48in; height: 26in;
     padding: 0.38in 0.45in 0.32in;
     box-sizing: border-box;
     display: grid;
@@ -276,11 +276,6 @@
         </div>
       </section>
 
-    </div>
-
-    <!-- ───── MIDDLE COLUMN ───── -->
-    <div class="col">
-
       <section>
         <h2>4. Method — The Pipeline</h2>
         <div class="pipeline">
@@ -346,6 +341,11 @@
         </ul>
       </section>
 
+    </div>
+
+    <!-- ───── MIDDLE COLUMN ───── -->
+    <div class="col">
+
       <section>
         <h2>5. Losses (with plain-English notes)</h2>
 
@@ -380,11 +380,6 @@
           <li><b>Reproducibility.</b> Single-command <code>./run_all.sh</code> script; seeds fixed (42) across Python, NumPy, PyTorch; checkpoints saved as <code>{dim, state_dict}</code> dicts for clean loading.</li>
         </ul>
       </section>
-
-    </div>
-
-    <!-- ───── RIGHT COLUMN ───── -->
-    <div class="col">
 
       <section>
         <h2>6. Experimental Setup</h2>
@@ -423,14 +418,25 @@
           </tbody>
         </table>
         <div class="caption">Table 1 — AUROC/AUPR: higher is better. FPR@95: lower is better. Our best detector highlighted.</div>
+      </section>
 
+    </div>
+
+    <!-- ───── RIGHT COLUMN ───── -->
+    <div class="col">
+
+      <section>
+        <h2>7a. AUROC Comparison</h2>
         <img src="../outputs/auroc_bars.png"
-             style="width:100%; max-height:3.4in; object-fit:contain; margin-top:0.1in; border-radius:0.06in; display:block;"
+             style="width:100%; max-height:4.8in; object-fit:contain; border-radius:0.06in; display:block;"
              alt="AUROC grouped bar chart comparing all methods on Near-OOD and Far-OOD">
         <div class="caption">Figure 1 — AUROC comparison. Solid = Far-OOD (SVHN) · Hatched = Near-OOD (CIFAR-100).</div>
+      </section>
 
+      <section>
+        <h2>7b. ROC Curves</h2>
         <img src="../outputs/roc_curves.png"
-             style="width:100%; max-height:3.4in; object-fit:contain; margin-top:0.08in; border-radius:0.06in; display:block;"
+             style="width:100%; max-height:4.8in; object-fit:contain; border-radius:0.06in; display:block;"
              alt="ROC curves for all methods on Near-OOD and Far-OOD">
         <div class="caption">Figure 2 — ROC curves. Dashed = Liu et al. 2020 · Solid = our VQ-VAE methods.</div>
       </section>
@@ -466,11 +472,10 @@
         <p>Moving OOD detection into VQ-VAE latent space is a clear win for <b>Far-OOD</b>. <b>Near-OOD</b> stays hard because CIFAR-100 codes look too similar to CIFAR-10 codes in our 512-entry codebook.</p>
         <p><b>Next steps:</b></p>
         <ul>
-          <li>Smarter pseudo-OOD: CutMix-style latent perturbations, codebook-index shuffling, or mixing with sampled codebook distractors.</li>
+          <li>Smarter pseudo-OOD: CutMix-style latent perturbations or codebook-index shuffling.</li>
           <li>Larger codebook (K = 1024–4096) to resolve finer visual distinctions.</li>
-          <li>Learnable blend weight α (or a confidence-gated combiner) so weak signals can't hurt strong ones.</li>
+          <li>Learnable blend weight α so weak signals can't hurt strong ones.</li>
           <li>Richer encoders: a WideResNet-backed VQ-VAE should close the Near-OOD gap.</li>
-          <li>Per-superclass ablation to find which CIFAR-100 categories are hardest to flag.</li>
         </ul>
       </section>
 

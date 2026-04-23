@@ -2,7 +2,10 @@
 Trains the latent energy model using a contrastive hinge loss.
 
 - ID data : CIFAR-10 latents (real in-distribution)
-- OOD data: Gaussian noise vectors (cheap unsupervised pseudo-OOD)
+- OOD data: *latent-perturbation* pseudo-OOD (near-manifold negatives)
+            half the batch is spatial-shuffled CIFAR-10 codes — uses
+            real codebook entries in structurally wrong spatial arrangements;
+            half remains Gaussian noise as a far-manifold anchor.
 - No OOD labels are used, matching the paper's unsupervised framing.
 
 Loss (Eqs. 6-8 in paper):
@@ -26,7 +29,34 @@ M_OUT  =  -5.0   # OOD energy target             (push above this)
 LR     =  1e-3
 EPOCHS = 10
 BATCH  = 512
+C, H, W = 64, 8, 8   # VQ-VAE latent shape: channels × spatial (flattens to 4096)
 # ──────────────────────────────────────────────────────────────────────────
+
+
+def spatial_shuffle(z_flat: torch.Tensor) -> torch.Tensor:
+    """
+    Permute the H*W spatial positions within each sample, independently.
+
+    Uses real codebook entries in structurally impossible arrangements —
+    e.g. 'sky' codes where 'ground' codes should be. This is a much stronger
+    pseudo-OOD signal than Gaussian noise because it stays on the data
+    manifold (same codes, same per-feature statistics) while destroying the
+    spatial coherence the VQ-VAE encoder learned.
+    """
+    B = z_flat.size(0)
+    z = z_flat.view(B, C, H * W)                         # (B, 64, 64)
+    idx = torch.argsort(torch.rand(B, H * W, device=z.device), dim=1)  # (B, 64)
+    z = torch.gather(z, 2, idx.unsqueeze(1).expand(B, C, H * W))
+    return z.view(B, -1)
+
+
+def make_pseudo_ood(z_id: torch.Tensor) -> torch.Tensor:
+    """Half-batch spatial-shuffle + half-batch Gaussian noise."""
+    B = z_id.size(0)
+    half = B // 2
+    z_near = spatial_shuffle(z_id[:half])                # near-manifold
+    z_far  = torch.randn_like(z_id[half:])               # far-manifold
+    return torch.cat([z_near, z_far], dim=0)
 
 device = "mps" if torch.backends.mps.is_available() else \
          "cuda" if torch.cuda.is_available() else "cpu"
@@ -57,11 +87,11 @@ for epoch in range(1, EPOCHS + 1):
     for (z_id,) in loader:
         z_id = z_id.to(device)
 
-        # Gaussian noise as unsupervised pseudo-OOD (same batch size, same dim)
-        z_noise = torch.randn_like(z_id)
+        # Mixed pseudo-OOD: half spatial-shuffle (near) + half Gaussian (far)
+        z_neg = make_pseudo_ood(z_id)
 
         e_in  = model(z_id)     # (B, 1)
-        e_out = model(z_noise)  # (B, 1)
+        e_out = model(z_neg)    # (B, 1)
 
         # Hinge loss: push ID energy below M_IN, noise energy above M_OUT
         L_in  = (torch.clamp(e_in  - M_IN,  min=0) ** 2).mean()

@@ -2,7 +2,7 @@ import os
 import numpy as np
 import torch
 from scripts.metrics import compute_all
-from scripts.utils import combine_scores, load_model_checkpoint
+from scripts.utils import combine_scores, combine_scores_best_alpha, load_model_checkpoint
 from models.energy_model import EnergyMLP
 from models.mlp import OODMLP
 
@@ -42,15 +42,24 @@ def eval_pair(energy_model, mlp_model, id_lat, ood_lat, name, alpha=0.5):
                                 score_mlp(mlp_model, ood_lat)])
     c_scores = combine_scores(e_scores, m_scores, alpha=alpha)
 
+    # Learned-alpha blend: grid-search alpha on a val split, report on held-out test split.
+    c_best_scores, best_alpha, y_best = combine_scores_best_alpha(e_scores, m_scores, y_true)
+
     print(f"\n=== {name} ===")
-    print(f"{'Method':<14} {'AUROC':>8} {'AUPR':>8} {'FPR@95TPR':>12}")
-    print("-" * 46)
+    print(f"{'Method':<22} {'AUROC':>8} {'AUPR':>8} {'FPR@95TPR':>12}")
+    print("-" * 54)
 
     results = {}
-    for method_name, scores in [("Energy", e_scores), ("MLP", m_scores), ("Energy+MLP", c_scores)]:
+    for method_name, scores in [("Energy", e_scores), ("MLP", m_scores),
+                                 (f"E+MLP (alpha=0.5)", c_scores)]:
         m = compute_all(y_true, scores)
-        print(f"{method_name:<14} {m['AUROC']:>8.4f} {m['AUPR']:>8.4f} {m['FPR@95TPR']:>12.4f}")
+        print(f"{method_name:<22} {m['AUROC']:>8.4f} {m['AUPR']:>8.4f} {m['FPR@95TPR']:>12.4f}")
         results[method_name] = m
+
+    m_best = compute_all(y_best, c_best_scores)
+    best_name = f"E+MLP (alpha*={best_alpha:.1f})"
+    print(f"{best_name:<22} {m_best['AUROC']:>8.4f} {m_best['AUPR']:>8.4f} {m_best['FPR@95TPR']:>12.4f}")
+    results[best_name] = m_best
 
     return results
 
@@ -84,10 +93,10 @@ def main():
         for label, res in [("CIFAR-10 vs CIFAR-100 (Near-OOD)", near_res),
                             ("CIFAR-10 vs SVHN (Far-OOD)", far_res)]:
             f.write(f"{label}\n")
-            f.write(f"{'Method':<14} {'AUROC':>8} {'AUPR':>8} {'FPR@95TPR':>12}\n")
-            f.write("-" * 46 + "\n")
+            f.write(f"{'Method':<22} {'AUROC':>8} {'AUPR':>8} {'FPR@95TPR':>12}\n")
+            f.write("-" * 54 + "\n")
             for method, m in res.items():
-                f.write(f"{method:<14} {m['AUROC']:>8.4f} {m['AUPR']:>8.4f} {m['FPR@95TPR']:>12.4f}\n")
+                f.write(f"{method:<22} {m['AUROC']:>8.4f} {m['AUPR']:>8.4f} {m['FPR@95TPR']:>12.4f}\n")
             f.write("\n")
 
     print("\nSaved: outputs/results.txt")

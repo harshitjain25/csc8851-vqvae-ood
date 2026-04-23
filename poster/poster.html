@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Improving Energy-Based OOD Detection using Generative Modeling</title>
+<style>
+  /* ========= 48" x 36" LANDSCAPE ========= */
+  @page { size: 48in 30in; margin: 0; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: 48in; height: 30in;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #111;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 48in; height: 30in;
+    padding: 0.5in;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    row-gap: 0.25in;
+  }
+
+  /* ========= HEADER ========= */
+  header {
+    background: linear-gradient(135deg, #0B2A4A 0%, #1556A6 55%, #1E7A4E 100%);
+    color: #fff;
+    padding: 0.5in 0.7in;
+    border-radius: 0.18in;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 0.5in;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 76pt;
+    line-height: 1.02;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  header h1 em { font-style: normal; color: #FFD451; }
+  header .sub {
+    margin-top: 0.22in;
+    font-size: 24pt;
+    opacity: 0.92;
+    font-weight: 300;
+  }
+  header .authors-side {
+    text-align: right;
+    font-size: 22pt;
+    line-height: 1.4;
+  }
+  header .authors-side b { display: block; color: #FFD451; font-size: 26pt; }
+  header .authors-side .email { color: #cfd8e8; font-size: 16pt; font-family: "JetBrains Mono", Menlo, monospace; }
+
+  /* ========= ABSTRACT BAND ========= */
+  .abstract {
+    background: #FFF7D6;
+    border-left: 10px solid #FFD451;
+    padding: 0.3in 0.55in;
+    border-radius: 0.1in;
+    font-size: 21pt;
+    line-height: 1.4;
+  }
+  .abstract b { color: #8A6100; }
+
+  /* ========= MAIN 3-COLUMN ========= */
+  .cols { display: grid; grid-template-columns: 1fr 1.05fr 1fr; column-gap: 0.35in; height: 100%; }
+  .col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;  /* sections size to content; extra space falls BETWEEN them */
+  }
+
+  section {
+    background: #FAFBFD;
+    border: 2px solid #DAE1EC;
+    border-radius: 0.15in;
+    padding: 0.3in 0.35in;
+    overflow: hidden;
+  }
+  section h2 {
+    margin: 0 0 0.14in 0;
+    color: #0B2A4A;
+    font-size: 32pt;
+    border-bottom: 4px solid #FFD451;
+    padding-bottom: 6px;
+    font-weight: 700;
+  }
+  section p, section li { font-size: 19pt; line-height: 1.42; margin: 0 0 0.09in 0; }
+  section ul { margin: 0; padding-left: 0.3in; }
+  section > *:last-child { margin-bottom: 0 !important; }
+
+  .eq {
+    background: #fff;
+    padding: 13px 16px;
+    border-left: 6px solid #1556A6;
+    font-family: "Cambria Math", Cambria, Georgia, serif;
+    font-size: 20pt;
+    margin: 0.1in 0;
+    border-radius: 4px;
+    line-height: 1.35;
+  }
+  .eq small {
+    display: block;
+    font-size: 15pt;
+    color: #666;
+    margin-top: 5px;
+    font-family: "Helvetica Neue", sans-serif;
+    font-style: italic;
+  }
+
+  .plain-english {
+    background: #E8F2EC;
+    border-left: 6px solid #1E7A4E;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 0.1in 0;
+    font-size: 18pt;
+    line-height: 1.4;
+  }
+  .plain-english b { color: #1E7A4E; }
+
+  /* ========= PIPELINE ========= */
+  .pipeline {
+    background: #fff;
+    border-radius: 0.1in;
+    padding: 0.2in;
+    text-align: center;
+    border: 1px solid #E7EBF1;
+  }
+  .pipeline svg { width: 100%; height: auto; }
+  .caption {
+    text-align: center;
+    font-size: 12pt;
+    color: #555;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* ========= TABLE ========= */
+  table { width: 100%; border-collapse: collapse; font-size: 17pt; }
+  th, td { padding: 11px 10px; text-align: center; }
+  th {
+    background: #0B2A4A;
+    color: #fff;
+    font-size: 16pt;
+    letter-spacing: .5px;
+  }
+  tr:nth-child(even) td { background: #EEF2F8; }
+  tbody tr.ours td { background: #FFF7D6; font-weight: 700; }
+  tbody tr.ours td:first-child { color: #8A6100; }
+  td.metric { font-family: "JetBrains Mono", Menlo, monospace; }
+  .subhead td {
+    background: #1556A6 !important;
+    color: #fff;
+    font-size: 17pt;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  /* ========= BAR CHART ========= */
+  .bars { margin-top: 0.15in; }
+  .bars-title { font-size: 20pt; font-weight: 700; color: #0B2A4A; margin-bottom: 0.1in; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 2.4in 1fr 0.85in;
+    align-items: center;
+    margin: 9px 0;
+    font-size: 17pt;
+  }
+  .bar-wrap { background: #E7EBF1; height: 32px; border-radius: 3px; overflow: hidden; }
+  .bar { height: 100%; }
+  .bar.baseline { background: #9CA6B4; }
+  .bar.energy { background: #D6735A; }
+  .bar.mlp { background: #1E7A4E; }
+  .bar.combined { background: #4A2C82; }
+  .bar-val {
+    text-align: right;
+    font-family: "JetBrains Mono", Menlo, monospace;
+    font-size: 17pt;
+    font-weight: 600;
+  }
+
+  /* ========= TAKEAWAY ========= */
+  .takeaway { background: #1E7A4E; color: #fff; border: none; }
+  .takeaway h2 { color: #FFF7D6; border-bottom-color: #FFD451; }
+  .takeaway ul li { color: #fff; font-size: 19pt; margin-bottom: 10px; line-height: 1.38; }
+  .takeaway b { color: #FFD451; }
+
+  /* ========= FOOTER ========= */
+  footer {
+    background: #0B2A4A;
+    color: #E0E6F0;
+    padding: 0.3in 0.55in;
+    border-radius: 0.12in;
+    font-size: 13.5pt;
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 0.4in;
+    align-items: start;
+  }
+  footer b.ftitle {
+    color: #FFD451;
+    font-size: 17pt;
+    display: block;
+    margin-bottom: 6px;
+  }
+  footer ol { margin: 0; padding-left: 0.22in; line-height: 1.4; }
+  footer .repo {
+    font-family: "JetBrains Mono", Menlo, monospace;
+    color: #FFD451;
+    font-size: 14pt;
+  }
+
+  .mini-table { font-size: 17pt; width: 100%; border-collapse: collapse; margin-top: 0.1in; }
+  .mini-table td { padding: 8px 10px; border-bottom: 1px solid #DAE1EC; }
+  .mini-table td:first-child { font-weight: 600; color: #0B2A4A; }
+  .mini-table td.num { font-family: "JetBrains Mono", Menlo, monospace; text-align: right; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HEADER ============ -->
+  <header>
+    <div>
+      <h1>Improving Energy-Based <em>Out-of-Distribution</em> Detection<br>using Generative Modeling</h1>
+      <div class="sub">Shifting OOD detection from classifier logits into a VQ-VAE latent space</div>
+    </div>
+    <div class="authors-side">
+      <b>Harshit Jain</b><span class="email">hjain5@gsu.edu</span><br><br>
+      <b>Parsh Jadon</b><span class="email">pjadon1@gsu.edu</span>
+    </div>
+  </header>
+
+  <!-- ============ ABSTRACT ============ -->
+  <div class="abstract">
+    <b>The problem.</b> Neural networks often give very confident answers on images they've never seen before — even random noise. This is dangerous in healthcare or self-driving cars.
+    &nbsp;<b>What's been done.</b> Liu et al. (2020) showed that an <em>energy score</em> from the classifier's raw outputs catches OOD images better than the usual softmax score. But it still relies on the classifier's view of class labels, not on what the images actually look like.
+    &nbsp;<b>Our idea.</b> Train a VQ-VAE (a generative model that reconstructs images from a small "vocabulary" of codes) only on CIFAR-10, then detect OOD images directly in this learned code space.
+    &nbsp;<b>Result.</b> Our Latent MLP reaches <b>AUROC 0.98 on Far-OOD (SVHN)</b>, a 19-point jump over the baseline, and also beats it on the harder Near-OOD (CIFAR-100) task.
+  </div>
+
+  <!-- ============ COLUMNS ============ -->
+  <div class="cols">
+
+    <!-- ───── LEFT COLUMN ───── -->
+    <div class="col rows-3">
+
+      <section>
+        <h2>1. Motivation</h2>
+        <p>A CIFAR-10 classifier can confidently label a chest X-ray as "automobile", a blurry SVHN digit as "truck", or even pure Gaussian noise as "frog". In safety-critical systems — medical imaging, autonomous driving, industrial inspection — this silent failure is unacceptable. The model must be able to say <em>"I don't know"</em>.</p>
+        <p>OOD detection picks a score s(x) and a threshold τ, then flags an input as OOD when the score exceeds the threshold:</p>
+        <div class="eq">g(x; τ) = 𝟙[ s(x) &gt; τ ]</div>
+        <p>Liu <em>et al.</em> (NeurIPS 2020) proposed the <b>free energy</b> computed from classifier logits:</p>
+        <div class="eq">E(x; f) = −T · log Σᵢ exp(fᵢ(x)/T)
+          <small>Better calibrated than softmax, but still only measures how well x fits the 10 known classes.</small></div>
+        <div class="plain-english">
+          <b>In plain terms:</b> the classifier-energy score asks, <em>"does this image look like one of my 10 classes?"</em> We want to ask instead, <em>"does this image look like a CIFAR-10 image at all?"</em> — a question about visual structure, not class identity.
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Related Work</h2>
+        <ul>
+          <li><b>Softmax confidence</b> (Hendrycks &amp; Gimpel, 2017) — simplest baseline; known to be overconfident on unfamiliar inputs.</li>
+          <li><b>ODIN</b> (Liang et al., 2018) — adds temperature scaling plus a gradient-based input perturbation; both hyperparameters must be re-tuned per OOD dataset.</li>
+          <li><b>Mahalanobis</b> (Lee et al., 2018) — fits a class-conditional Gaussian on penultimate features; requires stored statistics and a Gaussian assumption.</li>
+          <li><b>Outlier Exposure</b> (Hendrycks et al., 2019) — fine-tunes the classifier on auxiliary OOD images to produce uniform predictions.</li>
+          <li><b>Energy OOD</b> (Liu et al., 2020) — our primary baseline; theoretically aligned with the log-partition function.</li>
+          <li><b>VQ-VAE</b> (van den Oord et al., 2017) — provides the discrete latent vocabulary at the core of our method.</li>
+        </ul>
+        <div class="plain-english">
+          <b>What's different here:</b> every method above scores inputs in either pixel space or classifier-feature space. We instead score them in a <em>generative</em> latent space — one shaped only by the ID data distribution.
+        </div>
+      </section>
+
+      <section>
+        <h2>3. Contributions</h2>
+        <ul>
+          <li><b>Reproduce</b> the classifier-energy baseline on CIFAR-10 vs CIFAR-100 and CIFAR-10 vs SVHN using a small CNN trained from scratch.</li>
+          <li><b>Propose latent energy detection</b> — an unsupervised energy network trained directly on VQ-VAE codes with a contrastive hinge loss. Pseudo-OOD combines spatial-shuffled codes (near-manifold negatives) and Gaussian noise (far-manifold), so no real OOD labels are needed at training time.</li>
+          <li><b>Add a supervised latent MLP</b> that operates on the same 4096-D codes, plus a combined score that blends both signals through min-max normalisation.</li>
+          <li><b>Evaluate</b> all four detectors on both Near-OOD (CIFAR-100) and Far-OOD (SVHN) using AUROC, AUPR, and FPR@95TPR — the standard benchmark triple.</li>
+          <li><b>Analyse</b> when combining detectors helps and when it hurts, and why Gaussian noise is a weak pseudo-OOD proxy in practice.</li>
+          <li><b>Release</b> a clean, reproducible PyTorch pipeline with a single-command run script, seeded for determinism, and documented model checkpoints.</li>
+        </ul>
+        <div class="plain-english">
+          <b>In short:</b> we take a strong baseline, move it into a generative latent space, keep it unsupervised, and measure what we gain and lose.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ───── MIDDLE COLUMN ───── -->
+    <div class="col rows-3">
+
+      <section>
+        <h2>4. Method — The Pipeline</h2>
+        <div class="pipeline">
+          <svg viewBox="0 0 860 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#333"/>
+              </marker>
+              <linearGradient id="vqg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1556A6"/><stop offset="100%" stop-color="#0B2A4A"/>
+              </linearGradient>
+            </defs>
+
+            <rect x="10" y="110" width="110" height="80" rx="8" fill="#F4F6FA" stroke="#1556A6" stroke-width="2"/>
+            <text x="65" y="145" text-anchor="middle" font-size="17" fill="#1556A6">Image x</text>
+            <text x="65" y="168" text-anchor="middle" font-size="12" fill="#555">3×32×32</text>
+
+            <line x1="120" y1="150" x2="170" y2="150" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+            <rect x="170" y="105" width="150" height="90" rx="8" fill="url(#vqg)"/>
+            <text x="245" y="140" text-anchor="middle" font-size="19" fill="#fff" font-weight="bold">VQ-VAE</text>
+            <text x="245" y="162" text-anchor="middle" font-size="12" fill="#FFD451">Encoder + Codebook</text>
+            <text x="245" y="180" text-anchor="middle" font-size="11" fill="#ddd">trained on CIFAR-10 only</text>
+
+            <line x1="320" y1="150" x2="370" y2="150" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+            <circle cx="405" cy="150" r="35" fill="#FFD451" stroke="#8A6100" stroke-width="2"/>
+            <text x="405" y="145" text-anchor="middle" font-size="18" font-weight="bold" fill="#5C3F00">z</text>
+            <text x="405" y="165" text-anchor="middle" font-size="11" fill="#5C3F00">4096-D code</text>
+
+            <line x1="440" y1="150" x2="485" y2="75"  stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+            <line x1="440" y1="150" x2="485" y2="225" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+            <rect x="485" y="45" width="160" height="70" rx="8" fill="#fff" stroke="#D6735A" stroke-width="3"/>
+            <text x="565" y="75" text-anchor="middle" font-size="16" fill="#A13A18" font-weight="bold">Energy MLP</text>
+            <text x="565" y="96" text-anchor="middle" font-size="11" fill="#555">unsupervised · hinge loss</text>
+
+            <rect x="485" y="195" width="160" height="70" rx="8" fill="#fff" stroke="#1E7A4E" stroke-width="3"/>
+            <text x="565" y="225" text-anchor="middle" font-size="16" fill="#1E7A4E" font-weight="bold">OOD MLP</text>
+            <text x="565" y="246" text-anchor="middle" font-size="11" fill="#555">supervised · BCE loss</text>
+
+            <line x1="645" y1="80" x2="700" y2="130" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+            <line x1="645" y1="230" x2="700" y2="175" stroke="#333" stroke-width="2" marker-end="url(#arr)"/>
+
+            <rect x="700" y="115" width="120" height="70" rx="8" fill="#FFC94A" stroke="#8A6100" stroke-width="2"/>
+            <text x="760" y="145" text-anchor="middle" font-size="15" font-weight="bold" fill="#5C3F00">Combined</text>
+            <text x="760" y="168" text-anchor="middle" font-size="15" font-weight="bold" fill="#5C3F00">Score s</text>
+
+            <line x1="820" y1="150" x2="855" y2="150" stroke="#333" stroke-width="2"/>
+            <text x="855" y="130" font-size="13" fill="#555">s &gt; τ?</text>
+            <text x="855" y="155" font-size="15" font-weight="bold" fill="#1E7A4E">ID / OOD</text>
+          </svg>
+          <div class="caption">Fig. 1 — The VQ-VAE turns an image into a 4096-dim code z. Two small networks score z; outputs are normalized and blended.</div>
+        </div>
+        <div class="plain-english" style="margin-top: 0.15in;">
+          <b>Why this should work:</b> the VQ-VAE has a fixed "vocabulary" (codebook) it learned from CIFAR-10 alone. CIFAR-100 and SVHN images force the encoder into unfamiliar code patterns — our detectors learn to flag exactly that.
+        </div>
+        <p style="margin-top: 0.1in;"><b>Three stages in the pipeline:</b></p>
+        <ul>
+          <li><b>Encode.</b> A conv encoder maps x ∈ ℝ<sup>3×32×32</sup> to a continuous tensor z<sub>e</sub> ∈ ℝ<sup>64×8×8</sup>.</li>
+          <li><b>Quantize.</b> Each 64-D spatial vector snaps to its nearest codebook entry e<sub>k</sub>. Result: z<sub>q</sub>, made up of 64 discrete codes arranged in an 8×8 grid.</li>
+          <li><b>Score.</b> Flatten z<sub>q</sub> to 4096-D, then pass through Energy MLP and OOD MLP in parallel.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Losses (with plain-English notes)</h2>
+
+        <p><b>VQ-VAE loss</b> — reconstruct the image + keep encoder outputs close to the codebook:</p>
+        <div class="eq">ℒ<sub>vq</sub> = ‖x − D(z<sub>q</sub>)‖² + ‖sg[z<sub>e</sub>] − e<sub>k</sub>‖² + β ‖z<sub>e</sub> − sg[e<sub>k</sub>]‖²
+          <small>3 terms: reconstruction, codebook update, commitment. sg[·] = stop-gradient.</small></div>
+
+        <p><b>Latent Energy loss</b> — a contrastive hinge. Push real CIFAR-10 codes to low energy; push pseudo-OOD codes to higher energy:</p>
+        <div class="eq">ℒ<sub>in</sub> = 𝔼<sub>z ~ pᵢD</sub>[ max(0, E(z) − m<sub>in</sub>)² ],&nbsp; m<sub>in</sub> = −10<br>
+          ℒ<sub>out</sub> = 𝔼<sub>z ~ pseudo-OOD</sub>[ max(0, m<sub>out</sub> − E(z))² ],&nbsp; m<sub>out</sub> = −5
+          <small>Pseudo-OOD: 50% spatial-shuffled CIFAR-10 codes (near-manifold) + 50% Gaussian noise (far-manifold).</small></div>
+
+        <p><b>Combined score</b> — min-max normalise each signal, blend with α (fixed at 0.5, or tuned via grid-search α*):</p>
+        <div class="eq">s<sub>comb</sub>(z) = α · Ẽ<sub>lat</sub>(z) + (1 − α) · ỹ<sub>MLP</sub>(z)</div>
+
+        <div class="plain-english">
+          <b>Why a hinge and not BCE?</b> A hinge loss stops pushing once a sample is already on the right side of the margin. This prevents the energy from collapsing to −∞ on ID data and keeps gradients bounded.
+        </div>
+
+      </section>
+
+      <section>
+        <h2>5b. Implementation Details</h2>
+        <ul>
+          <li><b>VQ-VAE.</b> 2-layer conv encoder/decoder (stride 2); codebook K = 512 entries of dim 64; commitment β = 0.25; straight-through estimator for the non-differentiable argmin step; trained on CIFAR-10 train split (50k) for 10 epochs with MSE reconstruction.</li>
+          <li><b>Latent shape.</b> After encoding a 32×32 image, z<sub>q</sub> is an 8×8 grid of 64-D codebook vectors. Flattened, that is a <b>4096-D</b> vector per image — the single representation consumed by every downstream detector.</li>
+          <li><b>Energy MLP.</b> 3 linear layers of 256 units with ReLU activations; final linear → scalar energy. Trained for 10 epochs with the hinge loss above.</li>
+          <li><b>OOD MLP.</b> Same shape as the energy model; final linear → logit passed through sigmoid for probability. Trained with BCE on binary ID/OOD labels.</li>
+          <li><b>Baseline CNN.</b> 2 conv blocks (32, 64 channels) + 2-layer MLP head; trained for 5 epochs with CrossEntropy on CIFAR-10; energy computed as −logsumexp of logits.</li>
+          <li><b>Optimization.</b> Adam (lr = 1e-3), batch size 512 for latent heads, 128 for the baseline CNN, 10 epochs per head. Full end-to-end pipeline runs in &lt;15 min on a single Colab T4 GPU.</li>
+          <li><b>Normalisation.</b> z-score using CIFAR-10 latent statistics (mean/std computed only on ID) — avoids data leakage from OOD sets.</li>
+          <li><b>Reproducibility.</b> Single-command <code>./run_all.sh</code> script; seeds fixed (42) across Python, NumPy, PyTorch; checkpoints saved as <code>{dim, state_dict}</code> dicts for clean loading.</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- ───── RIGHT COLUMN ───── -->
+    <div class="col rows-5">
+
+      <section>
+        <h2>6. Experimental Setup</h2>
+        <p><b>Datasets</b> (all 32×32 RGB, test splits):</p>
+        <table class="mini-table">
+          <tr><td>CIFAR-10 (ID)</td><td>10 classes</td><td class="num">10,000</td></tr>
+          <tr><td>CIFAR-100 (Near-OOD)</td><td>100 classes, natural images</td><td class="num">10,000</td></tr>
+          <tr><td>SVHN (Far-OOD)</td><td>10 digit classes, street view</td><td class="num">26,032</td></tr>
+        </table>
+        <p style="margin-top: 0.12in;"><b>Why these splits matter:</b> CIFAR-100 is a <em>stress test</em> — same image domain, so OOD cues are subtle. SVHN is a <em>sanity check</em> — obviously different content, so any decent detector should succeed.</p>
+        <p><b>Metrics:</b> AUROC ↑ (separability), AUPR ↑ (precision-recall), FPR@95TPR ↓ (false alarms at 95% true-positive rate — the practical deployment metric).</p>
+        <p><b>Training:</b> Adam (lr = 1e-3), 10 epochs, batch 512. Reproducibility seed = 42.</p>
+      </section>
+
+      <section>
+        <h2>7. Results</h2>
+        <table>
+          <thead>
+            <tr><th>Method</th><th>AUROC ↑</th><th>AUPR ↑</th><th>FPR@95 ↓</th></tr>
+          </thead>
+          <tbody>
+            <tr class="subhead"><td colspan="4">Near-OOD · CIFAR-10 vs CIFAR-100</td></tr>
+            <tr><td>Baseline Energy [1]</td><td class="metric">0.6884</td><td class="metric">0.6573</td><td class="metric">0.7959</td></tr>
+            <tr><td>Latent Energy (ours)</td><td class="metric">0.5113</td><td class="metric">0.5321</td><td class="metric">0.9550</td></tr>
+            <tr class="ours"><td>Latent MLP (ours)</td><td class="metric">0.7018</td><td class="metric">0.6937</td><td class="metric">0.8196</td></tr>
+            <tr><td>Latent E + MLP α=0.5 (ours)</td><td class="metric">0.6712</td><td class="metric">0.6710</td><td class="metric">0.8679</td></tr>
+            <tr><td>Latent E + MLP α* (ours)</td><td class="metric">0.7035</td><td class="metric">0.6963</td><td class="metric">0.8184</td></tr>
+
+            <tr class="subhead"><td colspan="4">Far-OOD · CIFAR-10 vs SVHN</td></tr>
+            <tr><td>Baseline Energy [1]</td><td class="metric">0.7887</td><td class="metric">0.8634</td><td class="metric">0.5870</td></tr>
+            <tr><td>Latent Energy (ours)</td><td class="metric">0.5334</td><td class="metric">0.7789</td><td class="metric">0.9518</td></tr>
+            <tr class="ours"><td>Latent MLP (ours)</td><td class="metric">0.9801</td><td class="metric">0.9920</td><td class="metric">0.1000</td></tr>
+            <tr><td>Latent E + MLP α=0.5 (ours)</td><td class="metric">0.9431</td><td class="metric">0.9718</td><td class="metric">0.1870</td></tr>
+            <tr><td>Latent E + MLP α* (ours)</td><td class="metric">0.9806</td><td class="metric">0.9922</td><td class="metric">0.0962</td></tr>
+          </tbody>
+        </table>
+        <div class="caption">Table 1 — AUROC/AUPR: higher is better. FPR@95: lower is better. Our best detector highlighted.</div>
+
+        <div class="bars">
+          <div class="bars-title">AUROC on SVHN (Far-OOD)</div>
+          <div class="bar-row">
+            <div>Baseline Energy</div>
+            <div class="bar-wrap"><div class="bar baseline" style="width:78.9%"></div></div>
+            <div class="bar-val">0.789</div>
+          </div>
+          <div class="bar-row">
+            <div>Latent Energy</div>
+            <div class="bar-wrap"><div class="bar energy" style="width:53.3%"></div></div>
+            <div class="bar-val">0.533</div>
+          </div>
+          <div class="bar-row">
+            <div>Latent MLP (ours)</div>
+            <div class="bar-wrap"><div class="bar mlp" style="width:98.0%"></div></div>
+            <div class="bar-val">0.980</div>
+          </div>
+          <div class="bar-row">
+            <div>Latent E + MLP α=0.5</div>
+            <div class="bar-wrap"><div class="bar combined" style="width:94.3%"></div></div>
+            <div class="bar-val">0.943</div>
+          </div>
+          <div class="bar-row">
+            <div>Latent E + MLP α*</div>
+            <div class="bar-wrap"><div class="bar mlp" style="width:98.1%"></div></div>
+            <div class="bar-val">0.981</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="takeaway">
+        <h2>8. What We Learned</h2>
+        <ul>
+          <li><b>Latent MLP crushes Far-OOD</b> — 0.98 AUROC vs baseline 0.79. A <b>19-point jump</b> just from moving into latent space, and FPR@95 drops from 59% to <b>10%</b>.</li>
+          <li><b>Also beats the baseline on the harder Near-OOD task</b> (0.70 vs 0.69 AUROC). Small margin, but consistent across metrics.</li>
+          <li><b>Even spatial-shuffle pseudo-OOD can't fix the energy model.</b> Replacing pure Gaussian noise with near-manifold negatives (permuted codebook codes) lifted energy AUROC from ≈ 0.49 to ≈ 0.53 — still near-random on real OOD sets.</li>
+          <li><b>Blending with fixed α hurts; learned α recovers.</b> Equal-weight blend (α=0.5) drags score below MLP-alone. Grid-searching α on a val split selects α*=0.0 — confirming the energy signal contributes nothing — and restores MLP performance.</li>
+          <li><b>Near-OOD is the real challenge.</b> CIFAR-100 shares visual statistics with CIFAR-10, so the codebook can't separate them cleanly.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9. Analysis: Why Does Combining Hurt?</h2>
+        <p>Fixed α=0.5 blend <em>underperforms</em> MLP-alone; learned α* fixes it. Concretely on Far-OOD (SVHN):</p>
+        <table class="mini-table" style="margin: 0.1in 0;">
+          <tr><td>MLP score on SVHN</td><td class="num">0.980</td></tr>
+          <tr><td>Energy score on SVHN</td><td class="num">0.533 (near-random)</td></tr>
+          <tr><td>0.5·MLP + 0.5·Energy</td><td class="num">0.943 ↓</td></tr>
+          <tr><td>α*·MLP + (1−α*)·Energy (α*=0.0)</td><td class="num">0.981 ✓</td></tr>
+        </table>
+        <div class="plain-english">
+          <b>Lesson:</b> an equal-weight blend silently assumes both signals are informative. When one is near-random, α=0.5 injects noise into the good signal. Grid-searching α on a held-out val split identifies α*=0.0 — ignore energy entirely — recovering MLP performance. The energy model adds no information the MLP doesn't already have.
+        </div>
+      </section>
+
+      <section>
+        <h2>10. Conclusions &amp; Future Work</h2>
+        <p>Moving OOD detection into VQ-VAE latent space is a clear win for <b>Far-OOD</b>. <b>Near-OOD</b> stays hard because CIFAR-100 codes look too similar to CIFAR-10 codes in our 512-entry codebook.</p>
+        <p><b>Next steps:</b></p>
+        <ul>
+          <li>Smarter pseudo-OOD: CutMix-style latent perturbations, codebook-index shuffling, or mixing with sampled codebook distractors.</li>
+          <li>Larger codebook (K = 1024–4096) to resolve finer visual distinctions.</li>
+          <li>Learnable blend weight α (or a confidence-gated combiner) so weak signals can't hurt strong ones.</li>
+          <li>Richer encoders: a WideResNet-backed VQ-VAE should close the Near-OOD gap.</li>
+          <li>Per-superclass ablation to find which CIFAR-100 categories are hardest to flag.</li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div>
+      <b class="ftitle">References</b>
+      <ol>
+        <li>W. Liu, X. Wang, J. Owens, Y. Li. <em>Energy-based Out-of-Distribution Detection.</em> NeurIPS 2020.</li>
+        <li>A. van den Oord, O. Vinyals, K. Kavukcuoglu. <em>Neural Discrete Representation Learning.</em> NeurIPS 2017.</li>
+        <li>D. Hendrycks, K. Gimpel. <em>A Baseline for Detecting Misclassified and OOD Examples.</em> ICLR 2017.</li>
+        <li>S. Liang, Y. Li, R. Srikant. <em>Enhancing the Reliability of OOD Detection (ODIN).</em> ICLR 2018.</li>
+        <li>K. Lee et al. <em>A Simple Unified Framework for Detecting OOD Samples and Adversarial Attacks.</em> NeurIPS 2018.</li>
+        <li>D. Hendrycks, M. Mazeika, T. Dietterich. <em>Deep Anomaly Detection with Outlier Exposure.</em> ICLR 2019.</li>
+      </ol>
+    </div>
+    <div style="text-align:right;">
+      <b class="ftitle">Code &amp; Models</b>
+      <div class="repo">github.com/harshitjain25/csc8851-vqvae-ood</div>
+      <div style="margin-top:5px;">PyTorch · CIFAR-10 · CIFAR-100 · SVHN</div>
+      <div style="margin-top:8px; opacity:.75; line-height:1.35;">
+        <b style="color:#FFD451;">Contributions.</b><br>
+        Harshit Jain — energy model, MLP, evaluation, report.<br>
+        Parsh Jadon — VQ-VAE training, latent code extraction.
+      </div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

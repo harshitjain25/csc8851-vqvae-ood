@@ -494,6 +494,28 @@ At $\alpha\!=\!0.5$, the 0.51-AUROC energy score dilutes
 the 0.98-AUROC MLP to $\approx$0.94; the grid search
 correctly discards the weak signal.
 
+\textbf{Overall picture.}
+Taken together, the results reveal a consistent pattern.
+Detectors that rely on visual texture (our VQ-VAE latent
+space) succeed when OOD data is structurally distinct but
+fail when it shares the same texture distribution as
+in-distribution data.
+Detectors that rely on semantic class features (WRN-40-2
+energy) capture fine-grained semantic distinctions but are
+sensitive to the quality of any auxiliary data used during
+fine-tuning.
+The gap between near-OOD and far-OOD performance is almost
+identical across all five methods, suggesting this is a
+fundamental property of the evaluation benchmarks rather
+than a shortcoming of any single detector.
+An ideal system would pair a semantically rich encoder with
+an energy function that captures distributional familiarity
+at multiple levels of abstraction.
+Our experiments suggest the primary bottleneck is the
+encoder architecture itself---not the scoring function
+placed on top---which directly motivates the WideResNet-backed
+VQ-VAE direction we outline in the conclusions.
+
 %% ── 5. CONCLUSIONS ──────────────────────────────────────────
 \section{Conclusions}
 \label{sec:conclusions}
@@ -508,25 +530,48 @@ For near-OOD data (CIFAR-100), the discriminative baseline
 wins by 15 AUROC points, because semantic features capture
 what the generative model cannot.
 
-Three concrete lessons came from this work.
-First, the supervised OOD MLP as implemented has
-\textbf{data leakage}---it is trained on labels from the
-evaluation datasets.
-Future work should adopt a few-shot protocol using a
-disjoint auxiliary source.
-Second, Gaussian noise is a poor pseudo-OOD proxy; the
-training negatives must look like real OOD latents, not
-random high-dimensional vectors.
-CutMix-style latent perturbations or codebook-index
-shuffling are promising alternatives.
-Third, mixing a near-random signal with a strong detector
-degrades performance; always validate blend weights before
-combining detectors.
+Three concrete lessons emerged from this work.
 
-Looking ahead, a WideResNet-backed VQ-VAE encoder would
-learn latent codes that reflect semantic content rather than
-visual texture, potentially closing the near-OOD gap and
-unifying the strengths of both approaches.
+\textbf{Lesson 1: Avoid data leakage in supervised detectors.}
+The supervised OOD MLP is trained on labels drawn from the
+exact datasets used for testing.
+A sound protocol would collect a small labeled set from a
+\emph{disjoint} auxiliary source---say, 50 examples from
+the Textures or Places-365 dataset---and evaluate zero-shot
+on CIFAR-100 and SVHN.
+Studying how performance degrades as the auxiliary set
+shrinks would also quantify how much supervision the latent
+space actually needs.
+
+\textbf{Lesson 2: Pseudo-OOD quality determines energy model quality.}
+Gaussian noise in $\mathbb{R}^{4096}$ occupies a region
+completely unlike any real image latent code; it is a
+trivially easy negative that teaches the model nothing
+about the actual OOD boundary.
+Harder negatives---codes produced by CutMix-style latent
+interpolation, codebook-index shuffling, or cross-class
+code swaps---would force the energy model to learn a
+tighter boundary and likely close the gap with the
+supervised MLP.
+
+\textbf{Lesson 3: Validate blend weights before combining detectors.}
+Mixing a near-random signal with a strong one actively
+hurts performance.
+A principled alternative is to gate on signal quality:
+only include a detector in the ensemble if its held-out
+validation AUROC exceeds a minimum threshold, or learn
+$\alpha$ end-to-end rather than by post-hoc grid search.
+
+Looking ahead, the most direct path to closing the near-OOD
+gap is a semantically richer encoder.
+A WideResNet-backed VQ-VAE would learn latent codes shaped
+by high-level class structure rather than low-level pixel
+texture, potentially combining the discriminative advantages
+of WRN-40-2 with the generative advantages of the codebook
+vocabulary.
+Alternatively, training the VQ-VAE with a joint
+reconstruction-plus-OOD objective could produce a codebook
+that is inherently more sensitive to distributional shift.
 
 %% ── PEER EVALUATION ─────────────────────────────────────────
 \section*{Peer Evaluation}

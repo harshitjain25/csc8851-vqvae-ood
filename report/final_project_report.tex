@@ -2,22 +2,15 @@
 % CSC 8851 Deep Learning — Spring 2026 | Final Project Report
 %
 % HOW TO COMPILE ON OVERLEAF:
-%   1. Go to overleaf.com → New Project → "CVPR 2026" template.
-%   2. Upload this file (final_project_report.tex) and
-%      references.bib, replacing the originals.
-%   3. Set the main file to final_project_report.tex.
-%   4. Compile with pdfLaTeX.
-%
-% The CVPR 2026 template on Overleaf provides cvpr.sty,
-% ieeenat_fullname.bst, and all required style files.
+%   1. New Project → "CVPR 2026" template (provides cvpr.sty).
+%   2. Upload this file, replacing the main .tex.
+%   3. Compile with pdfLaTeX (single run — no BibTeX needed).
 % =============================================================
 
 \documentclass[10pt,twocolumn,letterpaper]{article}
 
-% Use [pagenumbers] to show page numbers (required by instructor)
-\usepackage[pagenumbers]{cvpr}
+\usepackage[pagenumbers]{cvpr}   % CVPR 2026 style
 
-% ── Additional packages ───────────────────────────────────────
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 \usepackage{booktabs,multirow}
@@ -25,37 +18,34 @@
 \captionsetup[table]{position=top,font=small}
 \captionsetup[figure]{position=bottom,font=small}
 
-% ── Hyperref (recommended by CVPR 2026 template) ─────────────
 \definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
 \usepackage[pagebackref,breaklinks,colorlinks,
             allcolors=cvprblue]{hyperref}
 
-% ── Paper metadata ────────────────────────────────────────────
 \def\paperID{*****}
 \def\confName{CSC8851}
 \def\confYear{2026}
 
-% ── Title ─────────────────────────────────────────────────────
+% ── Title ────────────────────────────────────────────────────
 \title{Improving Energy-Based Out-of-Distribution Detection\\
        using Generative Modeling}
 
-% ── Authors ───────────────────────────────────────────────────
-\author{%
-  Harshit Jain\\
+% ── Authors ──────────────────────────────────────────────────
+\author{Harshit Jain\\
   Georgia State University\\
   {\tt\small hjain5@gsu.edu}\\
-  {\small PantherID: 002916196}
+  {\small PantherID:~002916196}
   \and
   Parsh Jadon\\
   Georgia State University\\
   {\tt\small pjadon1@gsu.edu}\\
-  {\small PantherID: 002936134}
+  {\small PantherID:~002936134}
 }
 
 \begin{document}
 \maketitle
 
-% ── Abstract ─────────────────────────────────────────────────
+%% ── ABSTRACT ────────────────────────────────────────────────
 \begin{abstract}
 Deep neural networks produce overconfident predictions on
 inputs far outside their training distribution---a critical
@@ -66,56 +56,53 @@ classifier into the discrete latent space of a
 Vector-Quantized Variational Autoencoder (VQ-VAE) trained
 exclusively on in-distribution data.
 An unsupervised energy model trained on VQ-VAE latent codes
-with a contrastive hinge loss requires no OOD labels at
-training time.
+with a contrastive hinge loss requires no OOD labels.
 A supervised MLP in the same latent space provides an
 upper-bound comparison.
 On CIFAR-10 (in-distribution), CIFAR-100 (near-OOD), and
 SVHN (far-OOD), our Latent MLP achieves AUROC~0.980 on
 SVHN---surpassing the energy baseline by 4.6 points and
-reducing FPR@95 from 25.8\,\% to 10.0\,\%.
+reducing FPR@95 from 25.8\% to 10.0\%.
 On the harder near-OOD task the energy baseline retains a
 15-point AUROC advantage, motivating richer pseudo-OOD
 strategies as future work.
 Code: \url{https://github.com/harshitjain25/csc8851-vqvae-ood}.
 \end{abstract}
 
-% ── 1. Introduction ──────────────────────────────────────────
+%% ── 1. INTRODUCTION ─────────────────────────────────────────
 \section{Introduction}
 
 Deep neural networks achieve remarkable accuracy on standard
 benchmarks, yet they suffer from a systematic overconfidence
 problem: they assign high-confidence predictions to inputs
-that bear no resemblance to their training
-data~\cite{nguyen2015deep}.
+that bear no resemblance to their training data~\cite{nguyen2015}.
 A classifier trained on CIFAR-10 objects may confidently
-label a street-view digit image as ``automobile,'' or return
-a confident class label for pure Gaussian noise.
+label a street-view digit as ``automobile,'' or return a
+confident class label for pure Gaussian noise.
 In autonomous driving, clinical decision-support, and
 industrial inspection, such silent failures are
-unacceptable---making out-of-distribution (OOD) detection
-a critical capability for deploying deep models safely.
+unacceptable---making out-of-distribution (OOD) detection a
+critical capability for safe deployment.
 
 \textbf{Problem formulation.}
 Let $p_{\mathrm{in}}(x)$ be the training distribution.
 At inference, given input $x$, we decide whether
 $x\!\sim\!p_{\mathrm{in}}$ or $x\!\sim\!p_{\mathrm{out}}$
 via a scoring function $s:\mathcal{X}\!\to\!\mathbb{R}$
-and threshold~$\tau$:
+and threshold $\tau$:
 \begin{equation}
-  g(x;\tau) = \mathbf{1}[s(x)>\tau].
-  \label{eq:decision}
+  g(x;\tau) = \mathbf{1}[s(x)>\tau].   \label{eq:decision}
 \end{equation}
 The goal is to choose $s$ so that in-distribution inputs
 score low and OOD inputs score high.
 
 \textbf{Limitations of existing methods.}
-The maximum softmax probability~\cite{hendrycks2017baseline}
-is a popular baseline but is overconfident because softmax
+The maximum softmax probability~\cite{hendrycks2017} is a
+popular baseline but notoriously overconfident: softmax
 normalisation forces probability mass onto a known class
 even for unfamiliar inputs.
-Liu~\etal~\cite{liu2020energy} showed that the free energy
-from raw logits,
+Liu~\etal~\cite{liu2020} showed that the free energy
+derived from raw classifier logits,
 \begin{equation}
   E(x;f) = -T\cdot\log\!\sum_{i=1}^{K} e^{f_i(x)/T},
   \label{eq:energy}
@@ -124,94 +111,92 @@ is better calibrated and correlates with the log-partition
 function of the data distribution.
 Yet this energy originates from a classifier optimised for
 \emph{class separability}: it measures how well an input
-fits the known class labels, not whether it resembles the
+fits the known classes, not whether it resembles the
 overall visual structure of in-distribution images.
 
 \textbf{Our approach.}
 We hypothesise that moving the energy surface into a
-\emph{generative} latent space better captures distributional
-familiarity.
-A VQ-VAE~\cite{vqvae} trained solely on CIFAR-10 builds a
-discrete visual vocabulary from reconstruction loss alone;
-OOD images forced through the same encoder produce latent
-codes that ``look unfamiliar'' because the codebook was
-never exposed to those visual patterns.
+\emph{generative} latent space better captures
+distributional familiarity.
+A VQ-VAE~\cite{vqvae2017} trained solely on CIFAR-10 builds
+a discrete visual vocabulary from reconstruction loss
+alone; OOD images forced through the same encoder produce
+latent codes that ``look unfamiliar'' because the codebook
+was never exposed to those visual patterns.
 
 \textbf{Contributions.}
-\begin{enumerate}\setlength\itemsep{0pt}
+\begin{enumerate}\setlength\itemsep{1pt}
   \item We faithfully reproduce the WRN-40-2 energy
-        detector of Liu~\etal~\cite{liu2020energy} and
-        confirm their numbers on CIFAR-100 and SVHN.
+        detector of Liu~\etal~\cite{liu2020} and confirm
+        their reported numbers on CIFAR-100 and SVHN.
   \item We train an \emph{unsupervised} latent energy model
         on VQ-VAE embeddings via a contrastive hinge loss,
         requiring no OOD labels.
   \item We train a supervised latent MLP as an upper-bound
         comparison and acknowledge its data-leakage
         limitation.
-  \item We show that a grid-searched blend weight $\alpha^*$
-        correctly discards a near-random signal, preventing
-        it from contaminating a strong detector.
+  \item We show that a grid-searched blend weight
+        $\alpha^*$ correctly discards a near-random signal,
+        preventing it from contaminating a strong detector.
 \end{enumerate}
 
-% ── 2. Related Work ──────────────────────────────────────────
+%% ── 2. RELATED WORK ─────────────────────────────────────────
 \section{Related Work}
 
 \textbf{Softmax confidence.}
-Hendrycks and Gimpel~\cite{hendrycks2017baseline} proposed
-the maximum softmax probability as an OOD score.
-It serves as a strong initial baseline, but the
+Hendrycks and Gimpel~\cite{hendrycks2017} proposed the
+maximum softmax probability as an OOD score.
+While it serves as a strong initial baseline, the
 normalisation constraint makes scores unreliable for inputs
 that differ substantially from the training manifold.
 
 \textbf{ODIN.}
-Liang~\etal~\cite{liang2018odin} widen the in/OOD gap using
+Liang~\etal~\cite{liang2018} widen the in/OOD gap using
 temperature scaling and gradient-based input perturbations.
 Both hyperparameters must be re-tuned for each OOD dataset,
 limiting generalisation at deployment.
 
 \textbf{Mahalanobis distance.}
-Lee~\etal~\cite{lee2018mahalanobis} fit class-conditional
-Gaussians to penultimate-layer features and use the
-Mahalanobis distance to the nearest class mean as an OOD
-score.
-The approach is effective but assumes Gaussian feature
-distributions and must store per-class statistics.
+Lee~\etal~\cite{lee2018} fit class-conditional Gaussians to
+penultimate-layer features and use Mahalanobis distance as
+the OOD score.
+The approach is effective but assumes Gaussian features and
+requires storing per-class statistics.
 
 \textbf{Outlier Exposure.}
-Hendrycks~\etal~\cite{hendrycks2019oe} demonstrated that
-fine-tuning a classifier on an auxiliary OOD dataset---
-encouraging uniform predictions on those examples---can
+Hendrycks~\etal~\cite{hendrycks2019} showed that
+fine-tuning a classifier on an auxiliary OOD dataset can
 significantly improve detection.
 Our supervised latent MLP is inspired by this idea but
-applies it in VQ-VAE latent space.
-Both methods share the same risk: if the auxiliary
-distribution does not match real test OOD data, the model
-overfits the proxy.
+applies it in VQ-VAE latent space and inherits the same
+risk: if the auxiliary distribution does not match real
+test OOD data, the model overfits the proxy.
 
 \textbf{Energy-based OOD.}
-Liu~\etal~\cite{liu2020energy} provided the theoretical
-grounding for Eq.~\eqref{eq:energy} as an OOD score,
-showing it avoids the overconfidence bias of softmax.
+Liu~\etal~\cite{liu2020} provided the theoretical grounding
+for Eq.~\eqref{eq:energy} as an OOD score, showing it
+avoids the overconfidence bias of softmax.
 Our work retains this energy formulation but relocates it
 from a discriminative classifier to a generative latent
-space.
+space, replacing class-level features with
+reconstruction-driven features.
 
 \textbf{VQ-VAE.}
-Van~den~Oord~\etal~\cite{vqvae} introduced the
+Van~den~Oord~\etal~\cite{vqvae2017} introduced the
 Vector-Quantized VAE, which encodes images as sequences of
 discrete tokens from a learned codebook.
-Because the codebook is shaped entirely by the reconstruction
-objective on in-distribution data, it provides a signal for
-distributional familiarity that is orthogonal to class
-labels.
+Because the codebook is shaped entirely by the
+reconstruction objective on in-distribution data, it
+provides a signal for distributional familiarity orthogonal
+to any class label information.
 
-% ── 3. Model and Method ──────────────────────────────────────
+%% ── 3. MODEL AND METHOD ─────────────────────────────────────
 \section{Model and Method}
 \label{sec:method}
 
 Figure~\ref{fig:pipeline} illustrates the full detection
-pipeline. All components downstream of the encoder share
-the same 4096-D latent vector~$\mathbf{z}$.
+pipeline. All components downstream of the VQ-VAE encoder
+share the same 4096-D latent vector $\mathbf{z}$.
 
 \begin{figure}[t]
 \centering
@@ -219,17 +204,15 @@ the same 4096-D latent vector~$\mathbf{z}$.
 \begin{tikzpicture}[
   node distance=0.25cm and 0.30cm,
   box/.style={draw,rounded corners=2pt,fill=blue!6,
-              minimum width=1.05cm,minimum height=0.52cm,
-              align=center,
-              font=\fontsize{7}{8.5}\selectfont},
-  arr/.style={-Latex,thick,gray!55!black}
-]
+    minimum width=1.05cm,minimum height=0.52cm,
+    align=center,font=\fontsize{7}{8.5}\selectfont},
+  arr/.style={-Latex,thick,gray!55!black}]
   \node[box](img){Image\\$x$};
   \node[box,right=of img](enc){VQ-VAE\\Encoder};
   \node[box,right=of enc](z){$\mathbf{z}$\\4096-D};
   \node[box,above right=0.20cm and 0.40cm of z](emlp){Energy\\MLP};
   \node[box,below right=0.20cm and 0.40cm of z](omlp){OOD\\MLP};
-  \node[box,right=3.1cm of z](comb){Score\\$s_{\text{comb}}$};
+  \node[box,right=3.1cm of z](comb){Score\\$s_\text{comb}$};
   \node[box,right=of comb](dec){ID/OOD};
   \draw[arr](img)--(enc);
   \draw[arr](enc)--(z);
@@ -242,8 +225,8 @@ the same 4096-D latent vector~$\mathbf{z}$.
 }
 \caption{Detection pipeline. The VQ-VAE encoder maps image
   $x$ to a 4096-D discrete latent $\mathbf{z}$.
-  An unsupervised Energy MLP and a supervised OOD MLP
-  independently score $\mathbf{z}$; their min-max-normalised
+  An unsupervised Energy MLP and a supervised OOD MLP score
+  $\mathbf{z}$ independently; their min-max-normalised
   outputs are blended into the combined score
   $s_{\mathrm{comb}}$.}
 \label{fig:pipeline}
@@ -260,8 +243,7 @@ $\mathbf{z}_e\!=\!E_\theta(x)\!\in\!\mathbb{R}^{8\times8\times64}$
 is quantised to the nearest entry:
 \begin{equation}
   \mathbf{z}_q = \operatorname*{arg\,min}_{\mathbf{e}_k\in\mathcal{C}}
-    \|\mathbf{z}_e-\mathbf{e}_k\|_2.
-  \label{eq:quant}
+    \|\mathbf{z}_e-\mathbf{e}_k\|_2.   \label{eq:quant}
 \end{equation}
 Training minimises the three-term objective
 \begin{equation}
@@ -271,15 +253,13 @@ Training minimises the three-term objective
   +\beta\underbrace{\|\mathbf{z}_e{-}\mathrm{sg}[\mathbf{e}_k]\|^2}_{\text{commit.}},
   \label{eq:vqloss}
 \end{equation}
-where $\mathrm{sg}[\cdot]$ is stop-gradient and
-$\beta\!=\!0.25$.
-The model is trained with Adam (lr$\!=\!10^{-3}$), batch
-size~128, for 10 epochs on the 50\,000-image CIFAR-10
-training set.
+where $\mathrm{sg}[\cdot]$ is stop-gradient and $\beta\!=\!0.25$.
+The model trains with Adam (lr\,$=10^{-3}$), batch 128, for
+10 epochs on the CIFAR-10 training set (50,000 images).
 Because the codebook is shaped solely by CIFAR-10
 reconstruction, it encodes only in-distribution visual
 patterns.
-Flattening the $8{\times}8{\times}64$ quantised tensor yields
+Flattening the quantised tensor yields
 $\mathbf{z}\!\in\!\mathbb{R}^{4096}$.
 
 \subsection{Latent Energy Model}
@@ -293,122 +273,110 @@ A squared hinge loss with margin targets
 $m_{\mathrm{in}}\!=\!-10$ and $m_{\mathrm{out}}\!=\!-5$
 enforces separation:
 \begin{align}
-  \mathcal{L}_{\mathrm{in}}  &=
-    \mathbb{E}_{\mathbf{z}\sim p_{\mathrm{ID}}}\!
-    \bigl[\max(0,E_{\mathrm{lat}}(\mathbf{z})-m_{\mathrm{in}})^2\bigr],
+  \mathcal{L}_{\mathrm{in}} &=
+    \mathbb{E}_{\mathbf{z}\sim p_\mathrm{ID}}\!
+    [\max(0,E_{\mathrm{lat}}(\mathbf{z})-m_{\mathrm{in}})^2],
     \label{eq:lin}\\
   \mathcal{L}_{\mathrm{out}} &=
     \mathbb{E}_{\mathbf{z}\sim\mathcal{N}}\!
-    \bigl[\max(0,m_{\mathrm{out}}-E_{\mathrm{lat}}(\mathbf{z}))^2\bigr],
+    [\max(0,m_{\mathrm{out}}-E_{\mathrm{lat}}(\mathbf{z}))^2],
     \label{eq:lout}
 \end{align}
 with total loss
 $\mathcal{L}_{\mathrm{energy}}=\mathcal{L}_{\mathrm{in}}+\mathcal{L}_{\mathrm{out}}$.
-The hinge sets the gradient to zero once a sample is on the
-correct side of its margin, preventing energy collapse and
-bounding gradients.
-Training uses Adam (lr$\!=\!10^{-3}$) for 10 epochs.
+The hinge zeroes the gradient once a sample is already on
+the correct side of its margin, preventing energy collapse.
+Training uses Adam (lr\,$=10^{-3}$) for 10 epochs.
 
 \subsection{Supervised OOD MLP}
 
-For an upper-bound comparison we train a binary MLP with
-the same architecture, optimised with binary cross-entropy:
+For an upper-bound comparison we train a binary MLP with the
+same architecture, optimised with binary cross-entropy:
 \begin{equation}
   \mathcal{L}_{\mathrm{MLP}} = -\mathbb{E}_{(\mathbf{z},y)}\!
-  \bigl[y\log\hat{y}+(1{-}y)\log(1{-}\hat{y})\bigr],
+  [y\log\hat{y}+(1{-}y)\log(1{-}\hat{y})],
   \label{eq:bce}
 \end{equation}
 where $y\!=\!0$ for CIFAR-10 latents and $y\!=\!1$ for
 CIFAR-100 / SVHN latents.
 
-\textbf{Data-leakage caveat.}
+\noindent\textbf{Data-leakage caveat.}
 We found that this setup constitutes \emph{data leakage}:
 the supervised MLP uses labeled samples from the same
 datasets evaluated at test time.
-A principled design would restrict OOD supervision to a
-small labeled set from a \emph{disjoint} auxiliary source,
-then evaluate zero-shot on the target datasets.
-We retain this setting to measure an upper bound but
-flag it explicitly as a limitation
-(Section~\ref{sec:conclusions}).
+A principled design would train on a small labeled set from
+a \emph{disjoint} auxiliary source and evaluate zero-shot.
+We retain this setting to measure an upper bound, flagging
+it as a limitation in Section~\ref{sec:conclusions}.
 
 \subsection{Combined Score and Threshold}
 
-Both raw scores are min-max normalised using CIFAR-10
-statistics:
+Both scores are min-max normalised to $[0,1]$ using
+CIFAR-10 statistics:
 \begin{equation}
   \tilde{s} = (s-s_{\min})\,/\,(s_{\max}-s_{\min}).
   \label{eq:norm}
 \end{equation}
-The combined score is a weighted average,
+The combined detection score is a weighted average,
 \begin{equation}
   s_{\mathrm{comb}}(\mathbf{z}) =
     \alpha\,\tilde{E}_{\mathrm{lat}}(\mathbf{z})
     +(1{-}\alpha)\,\tilde{y}(\mathbf{z}),
   \label{eq:comb}
 \end{equation}
-where $\alpha^*$ is chosen by grid search over
-$\{0.0,0.1,\ldots,1.0\}$ on a held-out validation split
-and applied to a disjoint test split.
+where $\alpha^*$ is grid-searched over
+$\{0.0,0.1,\ldots,1.0\}$ on a held-out validation split.
 The detection threshold $\tau$ in Eq.~\eqref{eq:decision}
-is fixed so that 95\,\% of in-distribution test samples are
-correctly accepted (TPR\,=\,0.95).
+is fixed so that TPR\,=\,0.95 on the in-distribution test
+set.
 
 \subsection{Implementation Challenges}
 
-Several engineering difficulties arose during development.
-
 \noindent\textbf{Memory-mapped OOD data.}
-Loading all 300K Random Images~\cite{hendrycks2019oe} as a
+Loading all 300K Random Images~\cite{hendrycks2019} as a
 single PyTorch tensor ($\approx$3.5\,GB) exhausted GPU
 memory during energy fine-tuning.
-We resolved this by replacing \texttt{TensorDataset} with a
-custom dataset that uses NumPy memory-mapped I/O
-(\texttt{mmap\_mode=`r'}), loading only the current batch
-into RAM at each training step.
+We replaced \texttt{TensorDataset} with a custom dataset
+using NumPy memory-mapped I/O (\texttt{mmap\_mode=`r'}),
+so only the current mini-batch is loaded into RAM.
 
 \noindent\textbf{Baseline reproduction.}
-We initially compared our methods against a small two-layer
-CNN baseline, which artificially inflated our relative
-gains.
-Reproducing the correct WRN-40-2 baseline required 100
-epochs of SGD training with cosine learning-rate
-decay---confirming the original paper's numbers and enabling
-a fair comparison.
+We initially compared against a small two-layer CNN
+baseline, which artificially inflated our relative gains.
+Reproducing the correct WRN-40-2 required 100 epochs of
+SGD with cosine learning-rate decay---confirming the
+original paper's numbers and enabling a fair comparison.
 
 \noindent\textbf{Weak-signal contamination.}
-A fixed $\alpha\!=\!0.5$ blend of the latent energy
-(AUROC~$\approx$\,0.51, near random) and the OOD MLP
-(AUROC~0.98) degraded Far-OOD performance from 0.98 to 0.94.
-Grid-searching $\alpha$ on a held-out validation partition
-resolved this: the optimal $\alpha^*\!=\!0.0$ correctly
-discards the near-random energy signal.
+A fixed $\alpha\!=\!0.5$ blend of the near-random energy
+(AUROC~$\approx$0.51) and the strong OOD MLP
+(AUROC~0.98) degraded Far-OOD performance to 0.94.
+Grid-searching $\alpha$ resolved this: $\alpha^*\!=\!0.0$
+correctly discards the near-random signal entirely.
 
-% ── 4. Experiments and Results ───────────────────────────────
+%% ── 4. EXPERIMENTS AND RESULTS ──────────────────────────────
 \section{Experiments and Results}
 
 \subsection{Experimental Setup}
 
 \noindent\textbf{Datasets.}
-CIFAR-10~\cite{krizhevsky2009learning} (50\,000 train /
-10\,000 test, 10 classes) is our in-distribution set.
-Near-OOD is CIFAR-100~\cite{krizhevsky2009learning}
-(10\,000 test images, 100 natural-image classes)---visually
-similar to CIFAR-10 and therefore the harder evaluation.
-Far-OOD is SVHN~\cite{netzer2011svhn} (26\,032 test images
-of street-view digit photographs), which is structurally
-dissimilar to CIFAR-10.
+CIFAR-10~\cite{krizhevsky2009} (50\,000 train / 10\,000
+test, 10 classes) is in-distribution.
+Near-OOD is CIFAR-100~\cite{krizhevsky2009} (10\,000 test
+images, 100 natural-image classes)---visually similar to
+CIFAR-10, hence the harder evaluation.
+Far-OOD is SVHN~\cite{netzer2011} (26\,032 test images of
+street-view digits), which is structurally dissimilar.
 
 \noindent\textbf{Metrics.}
-Following~\cite{liu2020energy,hendrycks2017baseline}: AUROC
-($\uparrow$), AUPR ($\uparrow$), and FPR@95TPR ($\downarrow$).
+Following~\cite{liu2020,hendrycks2017}: AUROC~($\uparrow$),
+AUPR~($\uparrow$), and FPR@95TPR~($\downarrow$).
 
 \noindent\textbf{Baselines.}
 We reproduce the pre-trained energy score and the
-energy-fine-tuned variant from Liu~\etal~\cite{liu2020energy},
-both using WideResNet-40-2 trained on CIFAR-10 for
-100~epochs with SGD, cosine-decay learning rate schedule,
-and batch size~128.
+energy-fine-tuned variant from~\cite{liu2020}, both using
+WideResNet-40-2 trained on CIFAR-10 for 100 epochs with
+SGD, cosine-decay LR schedule, and batch size 128.
 
 \subsection{Results}
 
@@ -416,10 +384,10 @@ Table~\ref{tab:results} reports all results.
 
 \begin{table}[!ht]
 \caption{OOD detection with CIFAR-10 as in-distribution.
-  $\uparrow$ higher is better; $\downarrow$ lower is better.
-  \textbf{Bold} = best per column.
-  $\dagger$~Supervised Latent MLP uses test-OOD labels
-  (data leakage); results are an upper bound only---see
+  $\uparrow$\,higher is better; $\downarrow$\,lower is
+  better. \textbf{Bold}\,=\,best per column.
+  $\dagger$\,Supervised Latent MLP is trained on test-OOD
+  labels (data leakage)---upper bound only; see
   Section~\ref{sec:method}.}
 \label{tab:results}
 \centering
@@ -434,10 +402,10 @@ Table~\ref{tab:results} reports all results.
   & AUROC$\uparrow$ & AUPR$\uparrow$ & FPR@95$\downarrow$
   & AUROC$\uparrow$ & AUPR$\uparrow$ & FPR@95$\downarrow$ \\
 \midrule
-WRN-40-2 Energy~\cite{liu2020energy}
+WRN-40-2 Energy~\cite{liu2020}
   & \textbf{0.859} & \textbf{0.857} & \textbf{0.625}
   & 0.934 & 0.968 & 0.258 \\
-WRN-40-2 Fine-tuned~\cite{liu2020energy}
+WRN-40-2 Fine-tuned~\cite{liu2020}
   & 0.744 & 0.653 & 0.562
   & 0.783 & 0.821 & 0.374 \\
 \midrule
@@ -456,86 +424,83 @@ E+MLP $\alpha^*\!=\!0$$^\dagger$ (ours)
 \end{table}
 
 \noindent\textbf{Baseline reproduction.}
-Our reproduced WRN-40-2 energy scores match the numbers
-reported in~\cite{liu2020energy}: AUROC~0.934 on SVHN and
-0.859 on CIFAR-100, confirming the correctness of our
-implementation.
+Our reproduced WRN-40-2 energy scores match~\cite{liu2020}:
+AUROC 0.934 on SVHN and 0.859 on CIFAR-100, confirming
+our implementation's correctness.
 
 \noindent\textbf{Far-OOD (SVHN).}
-The Latent MLP achieves AUROC~0.980 and FPR@95~10.0\%,
-improving the energy baseline by $+$4.6~AUROC points and
-cutting false alarms by 15.8 percentage points at 95\,\%
-recall.
+The Latent MLP achieves AUROC 0.980 and FPR@95 10.0\%,
+improving the energy baseline by $+$4.6 AUROC points and
+cutting false alarms at 95\% recall by 15.8 percentage
+points.
 SVHN digit images are structurally dissimilar to CIFAR-10
-natural objects; the VQ-VAE codebook---built from natural
-image patches---poorly encodes digit patterns, producing
-clearly anomalous latent codes.
+objects; the VQ-VAE codebook---built from natural patches---
+poorly encodes digit patterns, producing anomalous latents.
 
 \noindent\textbf{Near-OOD (CIFAR-100).}
 The energy baseline leads decisively (0.859 vs.\ 0.704
 AUROC).
 CIFAR-100 shares CIFAR-10's visual distribution; the VQ-VAE
-codebook describes both datasets equally well because they
-contain the same types of natural-image textures.
+codebook describes both equally well since they contain the
+same natural-image texture types.
 The discriminative WRN-40-2, with 40 supervised layers,
 captures semantic differences that the reconstruction-driven
 encoder ignores.
 
 \noindent\textbf{Effect of energy fine-tuning.}
-Fine-tuning WRN-40-2 on 300K random internet images
-\cite{hendrycks2019oe} \emph{degraded} AUROC by $-$15
-points on SVHN and $-$12 points on CIFAR-100.
+Fine-tuning WRN-40-2 on 300K random images~\cite{hendrycks2019}
+\emph{degraded} AUROC by $-$15 points on SVHN and $-$12
+on CIFAR-100.
 The proxy OOD distribution (random internet crops) does not
-resemble real test OOD distributions; the model overfits the
-proxy, highlighting the sensitivity of Outlier Exposure to
-the choice of auxiliary data.
+match real test OOD; the model overfits the proxy,
+highlighting Outlier Exposure's sensitivity to auxiliary
+data quality.
 
 \noindent\textbf{Latent energy model failure.}
-The Latent Energy model achieves AUROC~0.511--0.533, near
+The Latent Energy model achieves AUROC 0.511--0.533, near
 random.
 Gaussian noise pseudo-OOD teaches the model to separate
 ``CIFAR-10 codes vs.\ Gaussian noise'' rather than
-``in-distribution vs.\ real OOD codes''; real OOD latents
-look nothing like Gaussian noise in the VQ-VAE space.
+``in-distribution vs.\ real OOD codes.'' Real OOD latents
+look nothing like Gaussian noise in VQ-VAE space.
 
 \noindent\textbf{Combined score ($\alpha^*$).}
 Grid search yields $\alpha^*\!=\!0.0$ on both datasets.
 Blending the 0.51-AUROC energy score with the 0.98-AUROC
 MLP at fixed $\alpha\!=\!0.5$ degrades performance to 0.94;
 $\alpha^*\!=\!0.0$ correctly discards the weak signal and
-recovers MLP performance.
+recovers full MLP performance.
 
-% ── 5. Conclusions ───────────────────────────────────────────
+%% ── 5. CONCLUSIONS ──────────────────────────────────────────
 \section{Conclusions}
 \label{sec:conclusions}
 
 We demonstrated that the VQ-VAE latent space provides a
 powerful OOD signal for visually distinct distributions:
 our Latent MLP surpasses the energy baseline by
-4.6~AUROC points on SVHN and halves FPR@95 from 25.8\,\% to
-10.0\,\%.
+4.6 AUROC points on SVHN and halves FPR@95 from 25.8\% to
+10.0\%.
 For near-OOD data the discriminative energy baseline retains
 a clear advantage, showing that reconstruction-driven
-features alone are insufficient to capture semantic
-differences between similar-looking datasets.
+features alone are insufficient for datasets that share
+visual structure with the training distribution.
 
 Three limitations emerged from this work.
 First, the supervised OOD MLP uses labels from the same
-datasets evaluated at test time---a \textbf{data-leakage}
+datasets evaluated at test time---a \textbf{data leakage}
 issue we identified during evaluation.
 A sound remedy is a few-shot protocol: collect a small
-labeled set from a \emph{disjoint} auxiliary OOD source,
-train the MLP on it, then evaluate zero-shot.
-Second, Gaussian noise is an inadequate pseudo-OOD proxy
-for the energy model; CutMix-based latent perturbations or
-codebook-index shuffling would produce harder, more
-realistic negatives.
+labeled set from a \emph{disjoint} auxiliary OOD source
+and evaluate zero-shot on CIFAR-100 and SVHN.
+Second, Gaussian noise is an inadequate pseudo-OOD proxy;
+CutMix-based latent perturbations or codebook-index
+shuffling would produce harder, more realistic negatives.
 Third, energy fine-tuning degraded performance because the
-proxy OOD distribution did not align with the test OOD
-distributions---a reminder that Outlier Exposure requires
-careful auxiliary data selection.
+proxy OOD distribution did not align with test OOD---a
+reminder that Outlier Exposure requires careful selection
+of auxiliary data.
 
-% ── Peer Evaluation ──────────────────────────────────────────
+%% ── PEER EVALUATION ─────────────────────────────────────────
 \section*{Peer Evaluation}
 
 Table~\ref{tab:peer} summarises team contributions and
@@ -545,9 +510,10 @@ self-assigned scores (out of 20).
 \caption{Self-peer evaluation table. Scores out of 20.}
 \label{tab:peer}
 \centering\small
-\begin{tabular}{lp{3.8cm}c}
+\begin{tabular}{lp{4cm}c}
 \toprule
-\textbf{Member} & \textbf{Primary Contributions} & \textbf{Score}\\
+\textbf{Member} & \textbf{Primary Contributions}
+  & \textbf{Score} \\
 \midrule
 Harshit Jain & Energy model, OOD MLP, evaluation
   pipeline, memory-map fix, report & 20/20 \\
@@ -557,11 +523,73 @@ Parsh Jadon  & VQ-VAE training, latent code
 \end{tabular}
 \end{table}
 
-% ── References ───────────────────────────────────────────────
-{
-  \small
-  \bibliographystyle{ieeenat_fullname}
-  \bibliography{references}
+%% ── REFERENCES (start on new page = page 5) ─────────────────
+\clearpage
+
+{\small
+\begin{thebibliography}{9}
+
+\bibitem{liu2020}
+W.~Liu, X.~Wang, J.~D.~Owens, and Y.~Li.
+\newblock Energy-based out-of-distribution detection.
+\newblock In {\em Advances in Neural Information Processing
+  Systems (NeurIPS)}, vol.~33, pp.~21464--21475, 2020.
+
+\bibitem{vqvae2017}
+A.~van~den~Oord, O.~Vinyals, and K.~Kavukcuoglu.
+\newblock Neural discrete representation learning.
+\newblock In {\em Advances in Neural Information Processing
+  Systems (NeurIPS)}, vol.~30, 2017.
+
+\bibitem{hendrycks2017}
+D.~Hendrycks and K.~Gimpel.
+\newblock A baseline for detecting misclassified and
+  out-of-distribution examples in neural networks.
+\newblock In {\em Int'l Conf.\ on Learning Representations
+  (ICLR)}, 2017.
+
+\bibitem{liang2018}
+S.~Liang, Y.~Li, and R.~Srikant.
+\newblock Enhancing the reliability of out-of-distribution
+  image detection in neural networks.
+\newblock In {\em Int'l Conf.\ on Learning Representations
+  (ICLR)}, 2018.
+
+\bibitem{lee2018}
+K.~Lee, K.~Lee, H.~Lee, and J.~Shin.
+\newblock A simple unified framework for detecting
+  out-of-distribution samples and adversarial attacks.
+\newblock In {\em Advances in Neural Information Processing
+  Systems (NeurIPS)}, vol.~31, 2018.
+
+\bibitem{hendrycks2019}
+D.~Hendrycks, M.~Mazeika, and T.~Dietterich.
+\newblock Deep anomaly detection with outlier exposure.
+\newblock In {\em Int'l Conf.\ on Learning Representations
+  (ICLR)}, 2019.
+
+\bibitem{krizhevsky2009}
+A.~Krizhevsky.
+\newblock Learning multiple layers of features from tiny
+  images.
+\newblock M.S.\ thesis, University of Toronto, 2009.
+
+\bibitem{netzer2011}
+Y.~Netzer, T.~Wang, A.~Coates, A.~Bissacco, B.~Wu, and
+  A.~Y.~Ng.
+\newblock Reading digits in natural images with unsupervised
+  feature learning.
+\newblock In {\em NIPS Workshop on Deep Learning and
+  Unsupervised Feature Learning}, 2011.
+
+\bibitem{nguyen2015}
+A.~Nguyen, J.~Yosinski, and J.~Clune.
+\newblock Deep neural networks are easily fooled: High
+  confidence predictions for unrecognizable images.
+\newblock In {\em IEEE Conf.\ on Computer Vision and Pattern
+  Recognition (CVPR)}, pp.~427--436, 2015.
+
+\end{thebibliography}
 }
 
 \end{document}

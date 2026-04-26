@@ -46,17 +46,17 @@
 \begin{document}
 
 % ── Title ─────────────────────────────────────────────────────
-\title{\vspace{-0.4in}\Large\textbf{Improving Energy-Based
-  Out-of-Distribution Detection\\[-2pt]using Generative
-  Modeling}}
+\title{\textbf{Improving Energy-Based Out-of-Distribution
+  Detection using Generative Modeling}}
 
 \author{%
-  Harshit Jain\quad\texttt{hjain5@gsu.edu}\quad
-    PantherID:~002916196\quad\quad
-  Parsh Jadon\quad\texttt{pjadon1@gsu.edu}\quad
-    PantherID:~002936134\\[2pt]
-  \normalsize Georgia State University, Atlanta, GA}
+  Harshit Jain \quad \texttt{hjain5@gsu.edu} \quad
+    PantherID:~002916196 \\
+  Parsh Jadon \quad \texttt{pjadon1@gsu.edu} \quad
+    PantherID:~002936134 \\[2pt]
+  Georgia State University, Atlanta, GA}
 
+\date{}   % suppress the auto-generated date
 \maketitle
 \thispagestyle{empty}\pagestyle{empty}
 
@@ -373,23 +373,26 @@ batch size~128.
 
 \subsection{Results}
 
-Table~\ref{tab:results} summarises all results.
+Table~\ref{tab:results} reports all results.
+The table spans both OOD benchmarks; methods above the
+horizontal rule are baselines from~\cite{liu2020energy},
+methods below are ours.
 
-\begin{table*}[t]
+\begin{table}[!ht]
 \caption{OOD detection with CIFAR-10 as in-distribution.
   $\uparrow$ higher is better; $\downarrow$ lower is better.
   \textbf{Bold} = best per column.
-  $\dagger$\,Supervised Latent MLP is trained on the same
-  datasets used for evaluation (data leakage); its results
-  represent an upper bound, not a fair comparison---see
-  Section~\ref{sec:method}.}
+  $\dagger$~Supervised Latent MLP is trained on the same
+  datasets used for evaluation (data leakage)---upper bound
+  only; see Section~\ref{sec:method}.}
 \label{tab:results}
-\centering\small
-\setlength{\tabcolsep}{5pt}
+\centering
+\resizebox{\columnwidth}{!}{%
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccccc}
 \toprule
-& \multicolumn{3}{c}{\textbf{Near-OOD: CIFAR-10 vs.\ CIFAR-100}}
-& \multicolumn{3}{c}{\textbf{Far-OOD: CIFAR-10 vs.\ SVHN}} \\
+& \multicolumn{3}{c}{\textbf{Near-OOD (CIFAR-100)}}
+& \multicolumn{3}{c}{\textbf{Far-OOD (SVHN)}} \\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 \textbf{Method}
   & AUROC$\uparrow$ & AUPR$\uparrow$ & FPR@95$\downarrow$
@@ -398,7 +401,7 @@ Table~\ref{tab:results} summarises all results.
 WRN-40-2 Energy~\cite{liu2020energy}
   & \textbf{0.859} & \textbf{0.857} & \textbf{0.625}
   & 0.934 & 0.968 & 0.258 \\
-WRN-40-2 Energy Fine-tuned~\cite{liu2020energy}
+WRN-40-2 Fine-tuned~\cite{liu2020energy}
   & 0.744 & 0.653 & 0.562
   & 0.783 & 0.821 & 0.374 \\
 \midrule
@@ -408,12 +411,13 @@ Latent Energy (ours)
 Latent MLP$^\dagger$ (ours)
   & 0.702 & 0.694 & 0.820
   & \textbf{0.980} & \textbf{0.992} & \textbf{0.100} \\
-Latent E+MLP $\alpha^*\!=\!0$$^\dagger$ (ours)
+E+MLP $\alpha^*\!=\!0$$^\dagger$ (ours)
   & 0.704 & 0.696 & 0.818
   & 0.981 & 0.992 & 0.096 \\
 \bottomrule
-\end{tabular}
-\end{table*}
+\end{tabular}%
+}
+\end{table}
 
 \textbf{Far-OOD (SVHN).}
 The Latent MLP achieves AUROC~0.980 and FPR@95~10.0\%,
@@ -489,7 +493,7 @@ and likely improve near-OOD performance.
 Table~\ref{tab:peer} summarises team contributions and
 self-assigned scores (out of 20).
 
-\begin{table}[h]
+\begin{table}[!ht]
 \caption{Self-peer evaluation table. Scores out of 20.}
 \label{tab:peer}
 \centering\small

@@ -53,9 +53,11 @@ contrastive hinge loss requires no OOD labels.
 A supervised MLP in the same space provides an upper-bound
 reference.
 On CIFAR-10 (in-distribution), CIFAR-100 (near-OOD), and
-SVHN (far-OOD), our Latent MLP achieves AUROC~0.980 on
-SVHN---a 4.6-point improvement over the energy baseline---
-while reducing FPR@95 from 25.8\% to 10.0\%.
+SVHN (far-OOD), a supervised latent-MLP upper bound
+achieves AUROC~0.980 on SVHN---demonstrating that the
+VQ-VAE latent space is highly separable when OOD labels
+are available---while reducing FPR@95 from 25.8\% to
+10.0\%.
 On the harder near-OOD benchmark the energy baseline leads
 by 15 AUROC points, pointing to the need for encoders that
 capture semantic rather than purely visual structure.
@@ -134,9 +136,12 @@ probing both ends of the difficulty spectrum.
   \item We train an unsupervised latent energy model on
         VQ-VAE embeddings via a contrastive hinge loss,
         with no OOD labels at training time.
-  \item We train a supervised latent MLP as an upper-bound
-        reference and explicitly identify its data-leakage
-        limitation.
+  \item We train a supervised latent MLP as a
+        \emph{controlled separability experiment}---measuring
+        how well the latent space can discriminate OOD data
+        when labels are available---and explicitly identify
+        this as a data-leakage upper bound, not a deployable
+        OOD detector.
   \item We show that a grid-searched blend weight
         $\alpha^*$ automatically discards a near-random
         signal, recovering the performance of the stronger
@@ -288,11 +293,12 @@ The hinge zeroes the gradient once a sample is on the
 correct side of its margin, preventing energy collapse.
 Training uses Adam (lr\,$=\!10^{-3}$) for 10 epochs.
 
-\subsection{Supervised OOD MLP}
+\subsection{Supervised Latent MLP (Separability Upper Bound)}
 
-To establish an upper-bound reference, we train a binary
-MLP (same 3-layer, 256-unit architecture) with binary
-cross-entropy:
+To measure how much discriminative information the VQ-VAE
+latent space contains when OOD labels are available, we
+train a binary MLP (same 3-layer, 256-unit architecture)
+with binary cross-entropy:
 \begin{equation}
   \mathcal{L}_{\mathrm{MLP}} = -\mathbb{E}_{(\mathbf{z},y)}\!
   [y\log\hat{y}+(1{-}y)\log(1{-}\hat{y})],
@@ -439,13 +445,18 @@ Our reproduced WRN-40-2 scores---AUROC 0.934 on SVHN and
 confirming implementation correctness and fair comparison.
 
 \textbf{Far-OOD (SVHN).}
-The Latent MLP achieves AUROC 0.980 and FPR@95 10.0\%, a
-4.6-point AUROC gain and 15.8-point false-alarm reduction
-over the pre-trained energy baseline.
-SVHN digit images are structurally alien to CIFAR-10 natural
-objects; the VQ-VAE codebook---built from natural scene
-patches---produces clearly anomalous codes for digits, and
-the MLP exploits this effectively.
+The supervised latent MLP---used here as a separability
+upper bound---achieves AUROC 0.980 and FPR@95 10.0\%.
+This demonstrates that the VQ-VAE latent space is
+\emph{highly separable} on far-OOD data when labeled
+examples are available: SVHN digit images are structurally
+alien to CIFAR-10 natural objects, and the VQ-VAE codebook
+produces clearly anomalous codes for them.
+We emphasise that this is not a proper unsupervised OOD
+result; the improvement over the energy baseline
+(4.6 AUROC points, 15.8 percentage-point FPR reduction)
+measures the capacity of the latent space, not a
+deployable detector.
 
 \textbf{Near-OOD (CIFAR-100).}
 The energy baseline leads decisively: 0.859 vs.\ 0.704
@@ -523,9 +534,12 @@ VQ-VAE direction we outline in the conclusions.
 This project asked whether a generative latent space can
 improve OOD detection over a discriminative energy score.
 The answer is dataset-dependent.
-For far-OOD data (SVHN), the VQ-VAE latent space clearly
-helps: our Latent MLP surpasses the energy baseline by
-4.6 AUROC points and halves FPR@95.
+For far-OOD data (SVHN), our supervised latent-MLP upper
+bound (AUROC~0.980, FPR@95~10.0\%) demonstrates that
+the VQ-VAE latent space is highly separable when OOD
+labels are available---though we stress this is a
+controlled separability experiment, not a deployable
+unsupervised OOD result.
 For near-OOD data (CIFAR-100), the discriminative baseline
 wins by 15 AUROC points, because semantic features capture
 what the generative model cannot.
@@ -662,62 +676,5 @@ A.~Nguyen, J.~Yosinski, and J.~Clune.
 
 \end{thebibliography}
 }
-
-%% ── APPENDIX / SUPPLEMENTARY MATERIAL ──────────────────────
-%% Per course guidelines: additional results placed after
-%% References are not counted in the 4-page limit.
-%%
-%% TO COMPILE ON OVERLEAF: upload auroc_bars.png and
-%% roc_curves.png from the outputs/ folder of our repo
-%% into the same Overleaf project as this .tex file.
-\clearpage
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{A\arabic{figure}}
-
-\section*{Appendix: Additional Results}
-
-The two figures below supplement Table~1 in the main paper.
-Figure~\ref{fig:auroc_bars} compares all five methods
-across both benchmarks in a grouped bar chart;
-Figure~\ref{fig:roc_curves} shows the corresponding ROC
-curves.
-Both are generated by \texttt{compare\_all.py} and
-available in the \texttt{outputs/} directory of our
-repository:
-\url{https://github.com/harshitjain25/csc8851-vqvae-ood}.
-
-\begin{figure*}[ht]
-\centering
-\includegraphics[width=0.93\linewidth]{auroc_bars.png}
-\caption{\textbf{Grouped AUROC comparison (Figure~A1).}
-  All five methods on Near-OOD (CIFAR-100, hatched bars)
-  and Far-OOD (SVHN, solid bars).
-  Bars are colour-coded by method: the two WRN-40-2
-  baselines from Liu~\etal~\cite{liu2020} appear on the
-  left; our three VQ-VAE methods on the right.
-  Values printed above each bar are the exact AUROC scores
-  from Table~1.
-  The Latent MLP (green, solid) achieves the highest AUROC
-  on SVHN (0.980) while the WRN-40-2 baseline (blue, solid)
-  leads on CIFAR-100 (0.859).}
-\label{fig:auroc_bars}
-\end{figure*}
-
-\begin{figure*}[ht]
-\centering
-\includegraphics[width=0.93\linewidth]{roc_curves.png}
-\caption{\textbf{ROC curves for all methods (Figure~A2).}
-  Left: Near-OOD (CIFAR-10 vs.\ CIFAR-100).
-  Right: Far-OOD (CIFAR-10 vs.\ SVHN).
-  Dashed lines are Liu~\etal~\cite{liu2020} baselines;
-  solid coloured lines are our VQ-VAE methods.
-  The diagonal at AUROC~0.5 represents random guessing.
-  On SVHN, the Latent MLP (green solid) hugs the top-left
-  corner (AUROC~0.980).
-  On CIFAR-100, the WRN-40-2 energy baseline (blue dashed)
-  is clearly above all VQ-VAE methods, confirming the
-  near-OOD gap discussed in Section~4.}
-\label{fig:roc_curves}
-\end{figure*}
 
 \end{document}

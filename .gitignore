@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+vqenv/
+.env
+
+# Model checkpoints (too large for GitHub)
+checkpoints/
+data/
+
+# Latent codes (large numpy files)
+latent_codes/
+
+# Mac
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Outputs (keep text, skip large images embedded elsewhere)
+outputs/*.png
